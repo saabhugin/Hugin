@@ -21,20 +21,20 @@ int main(){
 	};
 	
 	// Initialise RC reader - Reads PWM and S.Bus signals from the receiver via the Atmega's I2C.
-	rcreader rcr(i2c_open(1, 0x05), 4);
-	unsigned int channels[4] = {0,0,0,0};
-	double channels_d[4];
+	const int num_channels = 15; // 4 PWM channels, 12 SBus channels and one SBus info byte with 2 digital values, packet loss and failsafe flag.
+	const int num_sbus_channels = 13;
+	rcreader rcr(i2c_open(1, 0x05), num_channels);
+	int channels[num_channels];
+	double ext_channels_d[4];
+	double sbus_channels_d[num_sbus_channels];
 	usleep(50000);
-	//rcr.get_readings(channels);
-	//printf("channels[0]: %d, channels[1]: %d, channels[2]: %d, channels[3]: %d\n", channels[0], channels[1], channels[2], channels[3]);
-	//return 0;
 	
 	// Initialise IMU
 	MPU6050 imu(i2c_open(1, 0x68));
 	imu.init();
 	usleep(50000); // Makes sure the IMU with gyro is up and running (min 30 ms)
-	imu.calibrate_gyroscope();
-	usleep(50000);
+	//imu.calibrate_gyroscope();
+	//usleep(50000);
 	
 	// Declare values to hold IMU readings
 	double acc_d[3];
@@ -46,7 +46,6 @@ int main(){
 	double distance[1];
 	
 	
-		
 	printf("Test started\n");
 	while(1){
 		// Listen for packets and process if new packets have arrived
@@ -67,16 +66,18 @@ int main(){
 				// Get RC readings
 				rcr.get_readings(channels);
 				for(int i = 0; i < 4; i++){
-					channels_d[i] = ((double)(channels[i]-1000))/2000.0;
+					ext_channels_d[i] = ((double)(channels[i]-900))/1200.0;
 				}
+				rcr.parse_SBus(channels, sbus_channels_d);
 				
 				// Send updates 
 				sock.send(LOCAL_HOST, 22001, acc_d, 3);
 				sock.send(LOCAL_HOST, 22002, gyro_d, 3);
 				sock.send(LOCAL_HOST, 22003, distance, 1);
-				sock.send(LOCAL_HOST, 22102, channels_d, 4);
+				sock.send(LOCAL_HOST, 22101, sbus_channels_d, num_sbus_channels);
+				sock.send(LOCAL_HOST, 22102, ext_channels_d, 4);
 				
-				printf("acc_d[0]: %3.5f, gyro_d[0]: %3.5f, channel[0]: %d, distance[0]: %3.5f\n", acc_d[0], gyro_d[0], channels[0], distance[0]);
+				printf("a[0]: %3.5f, g[0]: %3.5f, c[4]: %d, s_d[0]: %3.5f\n", acc_d[0], gyro_d[0], channels[4], sbus_channels_d[0]);
 			}
 		}
 	}
