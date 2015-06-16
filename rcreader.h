@@ -14,8 +14,7 @@ class rcreader{
 	int get_num_channels();
 	void set_num_channels(int num_channels_);
 	
-	int get_readings(int* channels);
-	void parse_SBus(int* channels, double* SBus_channels_d);
+	int get_readings(unsigned int* channels);
 	
 	private:
 	int handle; // I2C handle for use with i2cfunc

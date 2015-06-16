@@ -3,7 +3,7 @@
 clear all;
 clc;
 
-time_end = 60*15;
+time_end = inf;
 time_step = .02;
 
 % PWM variables
