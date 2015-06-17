@@ -150,18 +150,24 @@ std::string reverse_hex_string(std::string in_string){
 	return ret;
 }
 
+// If the string hexstr is faulty then there might be an out_of_range error here.
+// TODO: Fix this by checking the string against something.
 double hexstr2double(const std::string& hexstr){
 	union{
 		long long i;
 		double d;
 	} value;
-	 
+	 	
 	if(hexstr.length() == 16){
-		value.i = std::stoll(hexstr, nullptr, 16);
+		try{
+			value.i = std::stoull(hexstr, nullptr, 16);
+		} catch (const std::out_of_range& e){
+			printf(" --ERR\n");
+			return 0.0;
+		}
 	} else {
 		value.i = 0;
 	}
-
 	return value.d;
 }
 
@@ -180,23 +186,6 @@ std::string double2hexstr(double x){
 
    return std::string(buf);
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 socket_val::socket_val(int type_, int port_, int num_vals_, std::string description_){

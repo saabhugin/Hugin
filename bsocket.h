@@ -9,6 +9,8 @@
 #include <netinet/udp.h>
 #include <netinet/ip.h>
 #include <arpa/inet.h>
+#include <stdexcept>
+#include <exception>
 
 #define INTEGER 1
 #define DOUBLE 2

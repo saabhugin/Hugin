@@ -17,7 +17,7 @@ int main(){
 	const int num_socket_vals = 2;
 	socket_val socket_vals[num_socket_vals] = {
 		socket_val(INTEGER, 25001, 1, "Ready val"),
-		socket_val(DOUBLE, 25002, 1, "value description")
+		socket_val(DOUBLE, 25002, 4, "PWM out")
 	};
 	
 	// Initialise RC reader - Reads PWM and S.Bus signals from the receiver via the Atmega's I2C.
@@ -32,6 +32,7 @@ int main(){
 	// Initialise IMU
 	MPU6050 imu(i2c_open(1, 0x68));
 	imu.init();
+	imu.set_range_acceleration(AFS_SEL_4G);
 	usleep(50000); // Makes sure the IMU with gyro is up and running (min 30 ms)
 	//imu.calibrate_gyroscope();
 	//usleep(50000);
@@ -56,6 +57,9 @@ int main(){
 			if(socket_vals[0].i_vals[0] == 1){
 				socket_vals[0].i_vals[0] = 0;
 				
+				// Set PWM outputs
+				rcr.set_pwm(socket_vals[1].d_vals, 4);
+				
 				// Get IMU readings
 				imu.get_accelerations(acc_d);
 				imu.get_angular_velocities(gyro_d);	
@@ -77,7 +81,7 @@ int main(){
 				sock.send(LOCAL_HOST, 22101, sbus_channels_d, num_sbus_channels);
 				sock.send(LOCAL_HOST, 22102, ext_channels_d, 4);
 				
-				printf("a[0]: %3.5f, g[0]: %3.5f, c[4]: %d, s_d[0]: %3.5f\n", acc_d[0], gyro_d[0], channels[4], sbus_channels_d[0]);
+				//printf("a[0]: %3.5f	 g[0]: %3.5f	 c[4]: %d	 s_d[0]: %3.5f\n", acc_d[0], gyro_d[0], channels[4], sbus_channels_d[0]);
 			}
 		}
 	}
