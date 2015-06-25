@@ -58,7 +58,7 @@ int main(){
 				socket_vals[0].i_vals[0] = 0;
 				
 				// Set PWM outputs
-				rcr.set_pwm(socket_vals[1].d_vals, 4);
+				//rcr.set_pwm(socket_vals[1].d_vals, 4);
 				
 				// Get IMU readings
 				imu.get_accelerations(acc_d);
