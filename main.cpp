@@ -54,9 +54,18 @@ int main(){
 		if(data_size > 0){
 			sock.process_packet(data_size, socket_vals, num_socket_vals);
 			// Ready to receive
+			
+			// Pace keeper packet received
 			if(socket_vals[0].i_vals[0] == 1){
 				socket_vals[0].i_vals[0] = 0;
 				
+				// set_pwm måste skapas. Den ska skicka fyra uint16_t-värden som 8 bytes över I2C till Arduinon. Skifta bytes enligt arduino-koden. PWM-från Beaglen är 0.0-1.0. SKa göras om till micro seconds.
+				// uint8_t buffer[8];
+				// for(int i = 0; i < 4; i++){
+				//		buffer[2*i] = pwm_channel[i] >> 8; // kanske åt andra hållet :) / Magnus
+				// 		buffer[2*i + 1] = pwm_channnels[i] & 8;
+				//	}
+				// i2c_write(rcreader.gethandle(), unsigned char* buf, 8);
 				// Set PWM outputs
 				//rcr.set_pwm(socket_vals[1].d_vals, 4);
 				
@@ -70,11 +79,12 @@ int main(){
 				// Get RC readings
 				rcr.get_readings(channels);
 				for(int i = 0; i < 4; i++){
-					ext_channels_d[i] = ((double)(channels[i]-900))/1200.0;
+					// From range 900-2100 to 0.0-1.0 
+					ext_channels_d[i] = ((double)(channels[i]-900))/1200.0;  // (Val - min_time) / (max_time - min_time)
 				}
 				rcr.parse_SBus(channels, sbus_channels_d);
 				
-				// Send updates 
+				// Send updates via UDP
 				sock.send(LOCAL_HOST, 22001, acc_d, 3);
 				sock.send(LOCAL_HOST, 22002, gyro_d, 3);
 				sock.send(LOCAL_HOST, 22003, distance, 1);
