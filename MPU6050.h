@@ -55,6 +55,10 @@
 #define PWR_MGMT_1_SLEEP			0x40
 #define PWR_MGMT_1_DEVICE_RESET 	0x80
 
+#define I2C_BYPASS_EN_BIT    0x02
+#define USERCTRL_I2C_MST_EN_BIT		0x10
+
+
 #define AFS_SEL_2G		0x00
 #define AFS_SEL_4G		0x08
 #define AFS_SEL_8G		0x10
@@ -65,7 +69,7 @@
 #define FS_SEL_500		0x08
 #define FS_SEL_1000		0x10
 #define FS_SEL_2000		0x18
-#define FS_SEL				0x18
+#define FS_SEL			0x18
 
 
 class MPU6050{
@@ -81,7 +85,7 @@ class MPU6050{
 	
 	int get_sleep_mode();
 	void set_sleep_mode(int sleep_mode);	
-		
+	
 	void set_range_acceleration(unsigned char range);
 	unsigned char get_range_acceleration();
 	int16_t get_fs_acceleration();
@@ -90,7 +94,7 @@ class MPU6050{
 	unsigned char get_range_gyroscope();
 	int16_t get_fs_gyroscope();
 	void calibrate_gyroscope();
-
+	
 	void get_accelerations(int16_t *ax, int16_t *ay, int16_t *az);
 	void get_accelerations(double *adx, double *ady, double *adz);
 	void get_accelerations(double *ad);
@@ -101,6 +105,7 @@ class MPU6050{
 
 	int16_t get_raw_temperature();
 	double get_temperature();
+	
 	
 	private:
 	int handle; // I2C handle for use with i2cfunc

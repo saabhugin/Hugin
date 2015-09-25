@@ -192,6 +192,9 @@ int i2c_write_pos(int handle, unsigned char* buf, unsigned int length, unsigned 
 }
   
 // Set bit to value at bit_pos_val at register address reg_addr
+// bit_pos_val is a byte with the desired bit (or bits) to be modified set to 1. The rest is 0. 
+// Example: To set bit 2 (=third bit) to 1 in a register reg_addr call 
+//		i2c_write_bit(handle, 0b00000100, 1, reg_addr);
 int i2c_write_bit(int handle, unsigned char bit_pos_val, int value, unsigned char reg_addr){
 	unsigned char tmp[1];
 	if(i2c_read_pos(handle, tmp, 1, reg_addr)){

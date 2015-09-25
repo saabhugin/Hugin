@@ -2,6 +2,7 @@
 #include <unistd.h>
 
 #include "MPU6050.h"
+#include "HMC5883L.h"
 #include "i2cfunc.h"
 #include "bsocket.h"
 #include "rcreader.h"
@@ -30,16 +31,24 @@ int main(){
 	usleep(50000);
 	
 	// Initialise IMU
+	printf("Initializing IMU\n");
 	MPU6050 imu(i2c_open(1, 0x68));
 	imu.init();
-	imu.set_range_acceleration(AFS_SEL_4G);
+	
+	imu.set_range_acceleration(AFS_SEL_8G);
 	usleep(50000); // Makes sure the IMU with gyro is up and running (min 30 ms)
+	
+	printf("OK! \nInitializing Magnetometer\n");
+	HMC5883L mag(i2c_open(1,MAG_ADDR));
+	mag.init();
+	printf("OK!\n");
 	//imu.calibrate_gyroscope();
 	//usleep(50000);
 	
 	// Declare values to hold IMU readings
 	double acc_d[3];
 	double gyro_d[3];
+	double mag_d[3];
 	
 	// Init VC01
 	VC01 distance_sensor(1);
@@ -47,10 +56,12 @@ int main(){
 	double distance[1];
 	
 	
-	printf("Test started\n");
+	printf("Test started!\n");
 	while(1){
 		// Listen for packets and process if new packets have arrived
+		//printf("Listen for data\n");
 		data_size = sock.listen();
+		//printf("data_size = %i\n", data_size);
 		if(data_size > 0){
 			sock.process_packet(data_size, socket_vals, num_socket_vals);
 			// Ready to receive
@@ -72,7 +83,7 @@ int main(){
 				// Get IMU readings
 				imu.get_accelerations(acc_d);
 				imu.get_angular_velocities(gyro_d);	
-
+				mag.get_magnetometer_data(mag_d);
 				// Get distance values
 				distance[0] = distance_sensor.get_distance();
 				
@@ -87,11 +98,13 @@ int main(){
 				// Send updates via UDP
 				sock.send(LOCAL_HOST, 22001, acc_d, 3);
 				sock.send(LOCAL_HOST, 22002, gyro_d, 3);
-				sock.send(LOCAL_HOST, 22003, distance, 1);
+				sock.send(LOCAL_HOST, 22003, mag_d, 3);
+				sock.send(LOCAL_HOST, 22006, distance, 1);
 				sock.send(LOCAL_HOST, 22101, sbus_channels_d, num_sbus_channels);
 				sock.send(LOCAL_HOST, 22102, ext_channels_d, 4);
 				
 				//printf("a[0]: %3.5f	 g[0]: %3.5f	 c[4]: %d	 s_d[0]: %3.5f\n", acc_d[0], gyro_d[0], channels[4], sbus_channels_d[0]);
+				//printf("Scaled: %f %f %f\n", mag_d[0], mag_d[1], mag_d[2]);
 			}
 		}
 	}

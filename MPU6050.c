@@ -46,6 +46,11 @@ void MPU6050::init(){
 	set_range_gyroscope(FS_SEL_250);
 	fs_acceleration = AFS_SEL_2G;
 	fs_gyroscope = FS_SEL_250;
+	
+	// Disable i2c master control on MPU
+	i2c_write_bit(handle, USERCTRL_I2C_MST_EN_BIT, 0, USER_CTRL); 
+	//Enable i2c bypass to access magnetometer
+	i2c_write_bit(handle, I2C_BYPASS_EN_BIT, 1, INT_PIN_CFG); 
 }
 
 void MPU6050::reset(){
