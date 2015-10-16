@@ -7,6 +7,7 @@
 #include "bsocket.h"
 #include "rcreader.h"
 #include "VC01.h"
+#include "led.h"
 
 int main(){
 	// Create socket and set listen timeout
@@ -55,7 +56,11 @@ int main(){
 	// Declare values to hold VC01 
 	double distance[1];
 	
-	
+	// Init LED
+	int light = 1;
+	int led_counter = 0;
+	led_init();
+	led_write(light);
 	printf("Test started!\n");
 	while(1){
 		// Listen for packets and process if new packets have arrived
@@ -103,6 +108,12 @@ int main(){
 				sock.send(LOCAL_HOST, 22101, sbus_channels_d, num_sbus_channels);
 				sock.send(LOCAL_HOST, 22102, ext_channels_d, 4);
 				
+				led_counter++;
+				if(led_counter > 10){
+					light = !light;
+					led_write(light);
+					led_counter=0;
+				}
 				//printf("a[0]: %3.5f	 g[0]: %3.5f	 c[4]: %d	 s_d[0]: %3.5f\n", acc_d[0], gyro_d[0], channels[4], sbus_channels_d[0]);
 				//printf("Scaled: %f %f %f\n", mag_d[0], mag_d[1], mag_d[2]);
 			}

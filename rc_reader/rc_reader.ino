@@ -27,6 +27,12 @@ Servo pwm_out1;
 Servo pwm_out2;
 Servo pwm_out3;
 
+// LED - variables
+unsigned int counter = 0; // Counter to check when to turn led on/off
+unsigned int light = 1; 
+unsigned int LED = 13; // PIN number for LED
+
+
 void setup(){  
   // Set input pins
   DDRD &= ~B00111100; // Arduino pins 2-5
@@ -43,6 +49,11 @@ void setup(){
   pwm_out1.attach(9);
   pwm_out2.attach(10);
   pwm_out3.attach(11);
+
+  // LED out
+  pinMode(LED , OUTPUT);
+  digitalWrite(LED, light);
+  
 }
 
 
@@ -52,6 +63,7 @@ void loop(){
   check_output();  // Output fail-safe
 }
 
+// Write PWM to motors
 void receiveEvent(int num_bytes){
   int iter = 0;
   while(Wire.available() && iter < 8){
@@ -69,9 +81,11 @@ void receiveEvent(int num_bytes){
   pwm_out1.writeMicroseconds(pwm_time_out[1]);
   pwm_out2.writeMicroseconds(pwm_time_out[2]);
   pwm_out3.writeMicroseconds(pwm_time_out[3]);
+
 }
 
 // On I2C request, put all channel values in a buffer and send buffer
+// Send PWM and SBUS to BBB
 void requestEvent(){
   // Fix PWM channels
   for(int i = 0; i < num_pwm_channels; i++){
@@ -89,6 +103,13 @@ void requestEvent(){
   buffer[buffer_size - 1] = sBuffer[23];
   
   Wire.write(buffer, (uint8_t)(buffer_size));
+   
+   counter++;
+  if(counter > 10){
+    light = !light;
+    digitalWrite(LED, light);
+    counter = 0;
+  }
 }
 
 void check_pins(){
@@ -110,7 +131,7 @@ void check_pins(){
           // Pin went low, we calculate the duration of the pulse
           // Possibility exists to filter the signal now
           diff = k - pulse_start[i];
-		  // Bad code? 
+      // Bad code? 
           // channel_vals[i] = diff; 
           if(diff > 900 && diff < 2100){ // Only save if reasonable value
             channel_vals[i] = channel_vals[i]*(pulse_iter[i]-1)/pulse_iter[i] + diff/pulse_iter[i];
