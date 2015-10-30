@@ -51,6 +51,9 @@ int main(){
 	double gyro_d[3];
 	double mag_d[3];
 	
+	// Value to store pwm_out
+	double pwm_out[4];
+	
 	// Init VC01
 	VC01 distance_sensor(1);
 	// Declare values to hold VC01 
@@ -75,15 +78,9 @@ int main(){
 			if(socket_vals[0].i_vals[0] == 1){
 				socket_vals[0].i_vals[0] = 0;
 				
-				// set_pwm måste skapas. Den ska skicka fyra uint16_t-värden som 8 bytes över I2C till Arduinon. Skifta bytes enligt arduino-koden. PWM-från Beaglen är 0.0-1.0. SKa göras om till micro seconds.
-				// uint8_t buffer[8];
-				// for(int i = 0; i < 4; i++){
-				//		buffer[2*i] = pwm_channel[i] >> 8; // kanske åt andra hållet :) / Magnus
-				// 		buffer[2*i + 1] = pwm_channnels[i] & 8;
-				//	}
-				// i2c_write(rcreader.gethandle(), unsigned char* buf, 8);
+				
 				// Set PWM outputs
-				//rcr.set_pwm(socket_vals[1].d_vals, 4);
+				rcr.set_pwm(socket_vals[1].d_vals, 4);
 				
 				// Get IMU readings
 				imu.get_accelerations(acc_d);

@@ -47,6 +47,17 @@ std::string reverse_hex_string(std::string in_string);
 double hexstr2double(const std::string& hexstr);
 std::string double2hexstr(double x);
 
+/*
+ * socket_val class for holding UDP-socket data
+ * 
+ * Public fields:
+ * 		type 		- stores
+ * 		port 		- stores UDP-port identifier
+ * 		num_vals 	- Stores size of buffer needed for the UDP-socket
+ * 		d_vals 		- pointer to double values. Holds data when type = DOUBLE
+ * 		i_vals		- pointer to integer values. Holds data when type = INTEGER
+ */
+
 class socket_val{
 	public:	
 	int type;

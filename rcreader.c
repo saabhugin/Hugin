@@ -69,3 +69,21 @@ void rcreader::parse_SBus(int* channels, double* SBus_channels_d){
 		SBus_channels_d[i] = (SBus_channels_d[i] - 352) / 1344;
 	}
 }
+// set_pwm. Skickar fyra uint16_t-värden som 8 bytes över I2C till Arduinon. 
+// Skifta bytes enligt arduino-koden. PWM-från Beaglen är 0.0-1.0. 
+
+void rcreader::set_pwm(double* pwm, int ch){
+	int pwm_us[4];
+	uint8_t buffer[8];
+	
+	for(int i = 0; i < ch; i++){
+		// Convert to cycle time
+		pwm_us[i] = (1200*pwm[i]+900);  // (Val * (max_time - min_time))+min_time)
+		
+		// Split data to write buffer
+		buffer[2*i] = pwm_us[i] >> 8; // MSB right shift to LSB
+		buffer[2*i + 1] = pwm_us[i] & 8; // LSB. MSB masked out.
+	}
+	i2c_write(handle, buffer, 8);
+}
+				
