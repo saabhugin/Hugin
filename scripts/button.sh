@@ -67,7 +67,7 @@ do
 		do
 			if [ ! -f "/root/logfiles/$name.mat" ]
 			then
-				mv /root/scripts/main.mat "/root/logfiles/$name.mat"
+				mv "$PWD/main.mat" "/root/logfiles/$name.mat"
 				echo $((name+1)) > /root/scripts/ftnumber
 				echo "$name.mat created"
 				break
