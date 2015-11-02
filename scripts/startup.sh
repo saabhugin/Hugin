@@ -1,5 +1,5 @@
-#!/bin/bash
-
+#!/bin/sh
+#
 # This shell command is to be run att startup of HUGIN beagle bone black.
 # Its purpouse is to startup the nessecary programs for automatic loging etc.
 # The file is started using Cron, a built-in tool for task management in debian
@@ -36,6 +36,4 @@ echo 1 > gpio30/value
 # Change directory back to root.
 cd ~/
 # ---------------------------------
-#
-# Start program to check wether or not the start button is pressed
-./button.sh
+#./button.sh

@@ -32,17 +32,17 @@ int main(){
 	usleep(50000);
 	
 	// Initialise IMU
-	printf("Initializing IMU\n");
+	//printf("Initializing IMU\n");
 	MPU6050 imu(i2c_open(1, 0x68));
 	imu.init();
 	
 	imu.set_range_acceleration(AFS_SEL_8G);
 	usleep(50000); // Makes sure the IMU with gyro is up and running (min 30 ms)
 	
-	printf("OK! \nInitializing Magnetometer\n");
+	//printf("OK! \nInitializing Magnetometer\n");
 	HMC5883L mag(i2c_open(1,MAG_ADDR));
 	mag.init();
-	printf("OK!\n");
+	//printf("OK!\n");
 	//imu.calibrate_gyroscope();
 	//usleep(50000);
 	
@@ -64,7 +64,7 @@ int main(){
 	int led_counter = 0;
 	led_init();
 	led_write(light);
-	printf("Test started!\n");
+	printf("Hugin program started!\n");
 	while(1){
 		// Listen for packets and process if new packets have arrived
 		//printf("Listen for data\n");
@@ -77,6 +77,16 @@ int main(){
 			// Pace keeper packet received
 			if(socket_vals[0].i_vals[0] == 1){
 				socket_vals[0].i_vals[0] = 0;
+				
+		/*	
+			// 
+			pwm_out[0] = socket_vals[1].d_vals[0];
+			pwm_out[1] = socket_vals[1].d_vals[1];
+			pwm_out[2] = socket_vals[1].d_vals[2];
+			pwm_out[3] = socket_vals[1].d_vals[3];
+			printf("PWM out values: %f \t %f \t %f \t %f \n", pwm_out[0], pwm_out[1], pwm_out[2], pwm_out[3]);
+
+		*/
 				
 				// Set PWM outputs
 				rcr.set_pwm(socket_vals[1].d_vals, 4);
