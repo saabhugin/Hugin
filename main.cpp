@@ -78,7 +78,6 @@ int main(){
 			if(socket_vals[0].i_vals[0] == 1){
 				socket_vals[0].i_vals[0] = 0;
 				
-				
 				// Set PWM outputs
 				rcr.set_pwm(socket_vals[1].d_vals, 4);
 				

@@ -1,0 +1,58 @@
+#!/bin/bash
+#
+# Script for listening for button pressed.
+# Connect button between port P8_8 and P8_7 GPIO 67 and 66 respectively.
+# GPIO67 provides the button with 3.3V, if 3.3V source is available elsewhere
+# GPIO67 is not needed.
+#
+# GPIO66 is input which reads if button is pressed.
+# If pressed, the value goes high.
+#
+# When button is pressed, the hugin main program starts.
+# After the hugin logging is completed, the main.mat file is renamed.
+# The new name is the next following free name in series according to the
+# value in "ftnumber". 
+#
+# After the new name is given to the log file, the program waits for another
+# pressed button. The button is sampled every 1 second.
+#
+# Setup ports and directory
+./button_setup.sh
+# Main  loop for checking if button is pressed
+while true
+do
+	#Check if button pressed
+	if [ $(cat /sys/class/gpio/gpio66/value) -eq 1 ] # If pressed
+	then
+	# Start hugin programs for logging
+		../../usr/hugin/hugin&
+		../main.elf
+		#When main.elf ends, change filename
+		#
+		#
+		#Search till new filename is found.
+		if [ -f "./ftnumber" ]
+		then
+			name=$(cat ./ftnumber)
+		else
+			name=1001 # If no ftnumber is found
+		fi
+		# Search for first new unique test number
+		while true
+		do
+			if [ ! -f "../logfiles/$name.mat" ]
+			then
+				mv ./main.mat "../logfiles/$name.mat"
+				echo $((name+1)) > ./ftnumber
+				echo "$name.mat created"
+				break
+			else
+				echo "$name.mat exists"
+				name=$((name+1))
+			fi
+		done
+		echo "Main.elf ended"
+		killall hugin #Kill hugin process for a reboot next log
+	fi
+	sleep 0.1
+done

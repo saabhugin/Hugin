@@ -78,7 +78,7 @@ void rcreader::set_pwm(double* pwm, int ch){
 	
 	for(int i = 0; i < ch; i++){
 		// Convert to cycle time
-		pwm_us[i] = (1200*pwm[i]+900);  // (Val * (max_time - min_time))+min_time)
+		pwm_us[i] = (1000*pwm[i]+1000);  // (Val * (max_time - min_time))+min_time)
 		
 		// Split data to write buffer
 		buffer[2*i] = pwm_us[i] >> 8; // MSB right shift to LSB

@@ -36,3 +36,6 @@ echo 1 > gpio30/value
 # Change directory back to root.
 cd ~/
 # ---------------------------------
+#
+# Start program to check wether or not the start button is pressed
+./button.sh
