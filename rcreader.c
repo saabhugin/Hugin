@@ -1,5 +1,6 @@
 #include "rcreader.h"
 #include <stdint.h>
+#include <cstdio>
 
 rcreader::rcreader(){
 	handle = 0;
@@ -73,17 +74,23 @@ void rcreader::parse_SBus(int* channels, double* SBus_channels_d){
 // Skifta bytes enligt arduino-koden. PWM-från Beaglen är 0.0-1.0. 
 
 void rcreader::set_pwm(double* pwm, int ch){
-	int pwm_us[4];
-	uint8_t buffer[8];
+	int pwm_us[ch];
+	uint8_t buffer[ch*2];
 	
 	for(int i = 0; i < ch; i++){
 		// Convert to cycle time
+		if(pwm[i]<0){
+			pwm[i]=0;
+		}
 		pwm_us[i] = (1000*pwm[i]+1000);  // (Val * (max_time - min_time))+min_time)
-		
+		//std::printf("Motor %i: %f => %i  ", i+1, pwm[i], pwm_us[i]);
 		// Split data to write buffer
 		buffer[2*i] = pwm_us[i] >> 8; // MSB right shift to LSB
-		buffer[2*i + 1] = pwm_us[i] & 8; // LSB. MSB masked out.
+		buffer[2*i + 1] = pwm_us[i] & 0xFF; // LSB. MSB masked out.
+		if(i==2){
+		//std::printf("Motor 3. Value: %i \t %#x tMSB: %#x \tLSB: %#x", pwm_us[i], pwm_us[i], buffer[2*i], buffer[2*i+1]);}
 	}
+	//std::printf("\n");
 	i2c_write(handle, buffer, 8);
 }
 				
