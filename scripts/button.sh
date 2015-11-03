@@ -2,8 +2,11 @@
 #
 # Script for listening for button pressed.
 # Connect button between port P8_8 and P8_7 GPIO 67 and 66 respectively.
+# And P8_07 with P8_30 via pulldown resistor.
+#
 # GPIO67 provides the button with 3.3V, if 3.3V source is available elsewhere
 # GPIO67 is not needed.
+# GPIO89 provides ground, connected via pulldown resistor to GPIO66.
 #
 # GPIO66 is input which reads if button is pressed.
 # If pressed, the value goes high.
@@ -32,6 +35,15 @@ then
         echo out > /sys/class/gpio/gpio67/direction
         echo 1 > /sys/class/gpio/gpio67/value
         echo "Port 67 set to output"
+fi
+#
+# INIT GPIO port 89 (P8_30)
+if [ ! -d "/sys/class/gpio/gpio89" ]
+then
+	echo 89 > /sys/class/gpio/export
+	echo out > /sys/class/gpio/gpio89/direction
+	echo 0 > /sys/class/gpio/gpio89/value
+	echo "Port 89 set to output"
 fi
 #
 # If log file directory does not exist create it
@@ -78,6 +90,7 @@ do
 		done
 		echo "Main.elf ended\nPush the button to start another data log!\n"
 		killall hugin #Kill hugin process for a reboot next log
+		echo 1 > /sys/class/gpio/gpio30/value # Light the Blue LED
 	fi
 	sleep 0.1
 done
