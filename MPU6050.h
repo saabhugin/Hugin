@@ -1,3 +1,10 @@
+/* MPU606050.h
+ *
+ * Holds MPU6050 class declaration. 
+ *
+ * Handles accelerometer and gyroscope readings from the FreeIMU. 
+ */
+
 #ifndef MPU6050_H
 #define MPU6050_H
 
@@ -80,29 +87,36 @@ class MPU6050{
 	void init();
 	void reset();
 	
+	// I2C support functions
 	int get_handle();
 	void set_handle(int handle_);
 	
+	// 
 	int get_sleep_mode();
 	void set_sleep_mode(int sleep_mode);	
 	
+	// Range of acceleratometer functions. Default: +- 2g
 	void set_range_acceleration(unsigned char range);
 	unsigned char get_range_acceleration();
 	int16_t get_fs_acceleration();
 
+	// Range of gyroscope functions.
 	void set_range_gyroscope(unsigned char range);
 	unsigned char get_range_gyroscope();
 	int16_t get_fs_gyroscope();
 	void calibrate_gyroscope();
 	
+	// Functions for getting accelerometer readings. 
 	void get_accelerations(int16_t *ax, int16_t *ay, int16_t *az);
 	void get_accelerations(double *adx, double *ady, double *adz);
 	void get_accelerations(double *ad);
 
+	// Function to sample the gyroscope
 	void get_angular_velocities(int16_t *gx, int16_t *gy, int16_t *gz);
 	void get_angular_velocities(double *gdx, double *gdy, double *gdz);
 	void get_angular_velocities(double *gd);
 
+	// Thermometer readings. 
 	int16_t get_raw_temperature();
 	double get_temperature();
 	
@@ -110,6 +124,7 @@ class MPU6050{
 	private:
 	int handle; // I2C handle for use with i2cfunc
 	
+	// Variable to hold range of accelrometer and gyroscope
 	unsigned char fs_acceleration;
 	unsigned char fs_gyroscope;
 	

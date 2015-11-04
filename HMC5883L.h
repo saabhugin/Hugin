@@ -1,3 +1,9 @@
+/* HMC5833L.h
+ *
+ * Holds HMC5833L class for sampling the magnetometer
+ * 
+ */
+
 #ifndef HMC5883L_H
 #define HMC5883L_H
 #include <cstdint>
@@ -35,16 +41,18 @@ class HMC5883L{
 	void set_gain(unsigned char gain);
 	void set_mode(unsigned char mode);
 	
+	// I2C support functions
 	int get_handle();
 	void set_handle(int handle_);
 	
+	// Get range of magnetometer
 	int16_t get_fs_magnetometer();
 
-	
+	// Sample the magenotometer
 	void get_magnetometer_data(double *md);	
 	
 	private:
-	
+	// Helper functions to typecast and read magnetometer raw data.
 	void get_magnetometer_data(int16_t *mx, int16_t *my, int16_t *mz);
 	void get_magnetometer_data(double *mdx, double *mdy, double *mdz);
 	

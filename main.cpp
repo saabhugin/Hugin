@@ -1,3 +1,15 @@
+/* main.cpp
+ *
+ * main file for hugin c-program
+ * 
+ * Initializes the system, then waits for pace keeper to be recieved via UDP from Simulink (main.elf)
+ *
+ * When pace keeper is recieved, new PWM signals is commanded (if desired, comment or uncomment line bellow)
+ * The the sensors are sampled and the PWM/SBUS is read from ATmega. 
+ * 
+ * Finally the sensor values and PWM/SBUS readings is sent to main.elf via UDP. 
+ */
+
 #include <stdio.h>
 #include <unistd.h>
 
@@ -32,44 +44,38 @@ int main(){
 	usleep(50000);
 	
 	// Initialise IMU
-	//printf("Initializing IMU\n");
 	MPU6050 imu(i2c_open(1, 0x68));
 	imu.init();
 	
-	imu.set_range_acceleration(AFS_SEL_8G);
+	imu.set_range_acceleration(AFS_SEL_8G); // Change accelerometer range. 2G was not enough, 8G works!
 	usleep(50000); // Makes sure the IMU with gyro is up and running (min 30 ms)
 	
-	//printf("OK! \nInitializing Magnetometer\n");
+	// Initialize magnetometer (part of FreeIMU)
 	HMC5883L mag(i2c_open(1,MAG_ADDR));
 	mag.init();
-	//printf("OK!\n");
-	//imu.calibrate_gyroscope();
-	//usleep(50000);
-	
+
 	// Declare values to hold IMU readings
 	double acc_d[3];
 	double gyro_d[3];
 	double mag_d[3];
 	
-	// Value to store pwm_out
-	double pwm_out[4];
-	
+
 	// Init VC01
 	VC01 distance_sensor(1);
 	// Declare values to hold VC01 
-	double distance[1];
+	double distance[1]; 
 	
 	// Init LED
 	int light = 1;
 	int led_counter = 0;
 	led_init();
 	led_write(light);
+	
+	// INITIALIZATION COMPLETED
 	printf("Hugin program started!\n");
 	while(1){
 		// Listen for packets and process if new packets have arrived
-		//printf("Listen for data\n");
 		data_size = sock.listen();
-		//printf("data_size = %i\n", data_size);
 		if(data_size > 0){
 			sock.process_packet(data_size, socket_vals, num_socket_vals);
 			// Ready to receive
@@ -78,16 +84,6 @@ int main(){
 			if(socket_vals[0].i_vals[0] == 1){
 				socket_vals[0].i_vals[0] = 0;
 				
-		/*	
-			// 
-			pwm_out[0] = socket_vals[1].d_vals[0];
-			pwm_out[1] = socket_vals[1].d_vals[1];
-			pwm_out[2] = socket_vals[1].d_vals[2];
-			pwm_out[3] = socket_vals[1].d_vals[3];
-			printf("PWM out values: %f \t %f \t %f \t %f \n", pwm_out[0], pwm_out[1], pwm_out[2], pwm_out[3]);
-
-		*/
-				
 				// Set PWM outputs
 				rcr.set_pwm(socket_vals[1].d_vals, 4);
 				
@@ -95,6 +91,7 @@ int main(){
 				imu.get_accelerations(acc_d);
 				imu.get_angular_velocities(gyro_d);	
 				mag.get_magnetometer_data(mag_d);
+				
 				// Get distance values
 				distance[0] = distance_sensor.get_distance();
 				
@@ -113,15 +110,14 @@ int main(){
 				sock.send(LOCAL_HOST, 22006, distance, 1);
 				sock.send(LOCAL_HOST, 22101, sbus_channels_d, num_sbus_channels);
 				sock.send(LOCAL_HOST, 22102, ext_channels_d, 4);
-				
+								
+				// Blink LED every 10th sent package
 				led_counter++;
 				if(led_counter > 10){
 					light = !light;
 					led_write(light);
 					led_counter=0;
 				}
-				//printf("a[0]: %3.5f	 g[0]: %3.5f	 c[4]: %d	 s_d[0]: %3.5f\n", acc_d[0], gyro_d[0], channels[4], sbus_channels_d[0]);
-				//printf("Scaled: %f %f %f\n", mag_d[0], mag_d[1], mag_d[2]);
 			}
 		}
 	}

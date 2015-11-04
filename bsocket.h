@@ -1,3 +1,12 @@
+/* bsocket.h
+ *
+ * UDP protocol functions. 
+ *
+ * Holds class bsocket and socket_val.
+ *
+ * bsocket handles the main UDP communication and stores the values in a socket_val object. 
+ */
+
 #ifndef BSOCKET_H
 #define BSOCKET_H
 
