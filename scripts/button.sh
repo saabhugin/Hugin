@@ -1,14 +1,16 @@
 #!/bin/sh
 #
+# /root/scripts/button.sh
+
 # Script for listening for button pressed.
-# Connect button between port P8_8 and P8_7 GPIO 67 and 66 respectively.
-# And P8_07 with P8_30 via pulldown resistor.
+# P8_14 = GPIO26 = pinVcc
+# P8_16 = GPIO46 = pinGnd
+# P8_18 = GPIO65 = pinIn
 #
-# GPIO67 provides the button with 3.3V, if 3.3V source is available elsewhere
-# GPIO67 is not needed.
-# GPIO89 provides ground, connected via pulldown resistor to GPIO66.
+# pinVcc provides the button with 3.3V.
+# pinGnd provides ground, connected via pulldown resistor to pinIn.
 #
-# GPIO66 is input which reads if button is pressed.
+# pinIn is input which reads if button is pressed.
 # If pressed, the value goes high.
 #
 # When button is pressed, the hugin main program starts.
@@ -19,31 +21,38 @@
 # After the new name is given to the log file, the program waits for another
 # pressed button. The button is sampled every 1 second.
 #
+
+# For reconfiguration of the pins used for the button, change the following parameters:
+pinIn=65
+pinGnd=46
+pinVcc=26
+
+
 # Setup ports and directory
-# INIT GPIO port  66 (P8_07)
-if [ ! -d "/sys/class/gpio/gpio66" ]
+# INIT GPIO port 75 (P8_42)
+if [ ! -d "/sys/class/gpio/gpio$pinIn" ]
 then
-        echo 66 > /sys/class/gpio/export
-        echo in > /sys/class/gpio/gpio66/direction
-        echo "Port 66 set to input."
+        echo $pinIn > /sys/class/gpio/export
+        echo in > /sys/class/gpio/gpio$pinIn/direction
+        echo "Port $pinIn set to input."
 fi
 #
-# INIT GPIO port 67 (P8_08)
-if [ ! -d "/sys/class/gpio/gpio67" ]
+# INIT GPIO port for Vcc
+if [ ! -d "/sys/class/gpio/gpio$pinVcc" ]
 then
-        echo 67 >/sys/class/gpio/export
-        echo out > /sys/class/gpio/gpio67/direction
-        echo 1 > /sys/class/gpio/gpio67/value
-        echo "Port 67 set to output"
+        echo $pinVcc >/sys/class/gpio/export
+        echo out > /sys/class/gpio/gpio$pinVcc/direction
+        echo 1 > /sys/class/gpio/gpio$pinVcc/value
+        echo "Port $pinVcc set to output"
 fi
 #
-# INIT GPIO port 89 (P8_30)
-if [ ! -d "/sys/class/gpio/gpio89" ]
+# INIT GPIO port for ground
+if [ ! -d "/sys/class/gpio/gpio$pinGnd" ]
 then
-	echo 89 > /sys/class/gpio/export
-	echo out > /sys/class/gpio/gpio89/direction
-	echo 0 > /sys/class/gpio/gpio89/value
-	echo "Port 89 set to output"
+	echo $pinGnd > /sys/class/gpio/export
+	echo out > /sys/class/gpio/gpio$pinGnd/direction
+	echo 0 > /sys/class/gpio/gpio$pinGnd/value
+	echo "Port $pinGnd set to output"
 fi
 #
 # If log file directory does not exist create it
@@ -57,8 +66,8 @@ fi
 while true
 do
 	#Check if button pressed
-	c=$(cat /sys/class/gpio/gpio66/value)
-	# echo "Button = $c"
+	c=$(cat /sys/class/gpio/gpio$pinIn/value)
+	echo "Button = $c"
 	if [ $c -eq 1 ] # If pressed
 	then
 	# Start hugin programs for logging

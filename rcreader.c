@@ -87,7 +87,7 @@ void rcreader::set_pwm(double* pwm, int ch){
 		// Split data to write buffer
 		buffer[2*i] = pwm_us[i] >> 8; // MSB right shift to LSB
 		buffer[2*i + 1] = pwm_us[i] & 0xFF; // LSB. MSB masked out.
-		if(i==2){
+		//if(i==2){
 		//std::printf("Motor 3. Value: %i \t %#x tMSB: %#x \tLSB: %#x", pwm_us[i], pwm_us[i], buffer[2*i], buffer[2*i+1]);}
 	}
 	//std::printf("\n");
