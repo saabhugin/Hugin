@@ -12,7 +12,6 @@
 
 #include <stdio.h>
 #include <unistd.h>
-
 #include "MPU6050.h"
 #include "HMC5883L.h"
 #include "i2cfunc.h"
@@ -20,6 +19,7 @@
 #include "rcreader.h"
 #include "VC01.h"
 #include "led.h"
+#include "pwm_out.h"
 
 int main(){
 	// Create socket and set listen timeout
@@ -59,17 +59,21 @@ int main(){
 	double gyro_d[3];
 	double mag_d[3];
 	
-
 	// Init VC01
 	VC01 distance_sensor(1);
 	// Declare values to hold VC01 
 	double distance[1]; 
 	
 	// Init LED
-	int light = 1;
+	int light  = 1;
 	int led_counter = 0;
 	led_init();
 	led_write(light);
+	
+	// Init PWM 
+	pwm_out.set_servoval();	
+	pwm_out.reset(pwm_handle);
+	pwm_out.set_freq(50, pwm_handle);
 	
 	// INITIALIZATION COMPLETED
 	printf("Hugin program started!\n");
@@ -81,12 +85,14 @@ int main(){
 			// Ready to receive
 			
 			// Pace keeper packet received
-			if(socket_vals[0].i_vals[0] == 1){
+			if(socket_vals[0].i_vals[0] == 1){		// i_vals accesses the ready signal
 				socket_vals[0].i_vals[0] = 0;
 				
 				// Set PWM outputs
-				rcr.set_pwm(socket_vals[1].d_vals, 4);
-				
+				double ctrl_signal[4];
+				ctrl_signal = socket_vals[1].d_vals;		// d_vals accesses the motor signals 
+				pwm_out.signal(ctrl_signal, pwm_handle);	// See pwm_out.c for details
+
 				// Get IMU readings
 				imu.get_accelerations(acc_d);
 				imu.get_angular_velocities(gyro_d);	
