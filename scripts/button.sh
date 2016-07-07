@@ -71,7 +71,7 @@ do
 	if [ $c -eq 1 ] # If pressed
 	then
 	# Start hugin programs for logging
-		/usr/hugin/hugin&
+		/root/hugin&
 		/root/main.elf
 		#When main.elf ends, change filename
 		#

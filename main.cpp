@@ -19,10 +19,11 @@
 #include "rcreader.h"
 #include "VC01.h"
 #include "led.h"
-#include "pwm_out.h"
+#include "PCA9685.h"
+#include "GPIO.h"
 
 int main(){
-	// Create socket and set listen timeout
+	// Create socket and set listen time out
 	bsocket sock(65536);
 	sock.set_listen_timeout(1000);
 	unsigned int data_size;
@@ -39,8 +40,9 @@ int main(){
 	const int num_sbus_channels = 13;
 	rcreader rcr(i2c_open(1, 0x05), num_channels);
 	int channels[num_channels];
-	double ext_channels_d[4];
+	int ext_channels_d[4];
 	double sbus_channels_d[num_sbus_channels];
+	int print_counter = 0;
 	usleep(50000);
 	
 	// Initialise IMU
@@ -67,13 +69,17 @@ int main(){
 	// Init LED
 	int light  = 1;
 	int led_counter = 0;
-	led_init();
-	led_write(light);
+	GPIO led(30);
+	led.init(0, light);
+	/*led_init();
+	led_write(light);*/
 	
 	// Init PWM 
-	pwm_out.set_servoval();	
-	pwm_out.reset(pwm_handle);
-	pwm_out.set_freq(50, pwm_handle);
+	PCA9685 pwm_out(i2c_open(1, 0x40));
+	pwm_out.init(50);
+	GPIO OE(49);
+	OE.init(1, 0);
+	
 	
 	// INITIALIZATION COMPLETED
 	printf("Hugin program started!\n");
@@ -89,10 +95,22 @@ int main(){
 				socket_vals[0].i_vals[0] = 0;
 				
 				// Set PWM outputs
-				double ctrl_signal[4];
-				ctrl_signal = socket_vals[1].d_vals;		// d_vals accesses the motor signals 
-				pwm_out.signal(ctrl_signal, pwm_handle);	// See pwm_out.c for details
-
+				pwm_out.signal(socket_vals[1].d_vals);	// d_vals accesses the motor signals 
+				
+				/*double ctrl_signal[4] = {0, 0, 1, 1};	// control signal (0-1) to the 4 servos
+				pwm_out.signal(ctrl_signal);*/
+				
+				/*for(int i = 0; i<4; i++) {
+					ctrlSignal[i] = 0;
+				}
+				pwm_out.signal(ctrlSignal);
+				usleep(1000000);
+				for(int i = 0; i<4; i++) {
+					ctrlSignal[i] = 1;
+				}
+				pwm_out.signal(ctrlSignal);
+				usleep(1000000);*/
+				
 				// Get IMU readings
 				imu.get_accelerations(acc_d);
 				imu.get_angular_velocities(gyro_d);	
@@ -102,11 +120,21 @@ int main(){
 				distance[0] = distance_sensor.get_distance();
 				
 				// Get RC readings
+				print_counter++;
 				rcr.get_readings(channels);
 				for(int i = 0; i < 4; i++){
 					// From range 900-2100 to 0.0-1.0 
-					ext_channels_d[i] = ((double)(channels[i]-900))/1200.0;  // (Val - min_time) / (max_time - min_time)
+					//ext_channels_d[i] = ((double)(channels[i]-900))/1200.0;  // (Val - min_time) / (max_time - min_time)
+					ext_channels_d[i] = channels[i];
 				}
+				// Printing every 10th PWM measurement 
+				/*if(print_counter > 10) {
+					for(int i=0; i<4; i++) {
+						printf("PWM signal (us): %d %d \n", i, ext_channels_d[i]);
+						//printf("PWM frequency (us): %d %d \n", i, ext_channels_d[i]);
+					}
+					print_counter = 0;
+				}*/
 				rcr.parse_SBus(channels, sbus_channels_d);
 				
 				// Send updates via UDP
@@ -121,8 +149,8 @@ int main(){
 				led_counter++;
 				if(led_counter > 10){
 					light = !light;
-					led_write(light);
-					led_counter=0;
+					led.write(light);
+					led_counter = 0;
 				}
 			}
 		}
