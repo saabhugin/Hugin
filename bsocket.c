@@ -4,7 +4,10 @@ bsocket::bsocket(long buf_size){
 	listen_timeout = 100000;	
 	buffer = (unsigned char *)malloc(buf_size);
 	
-	
+	/* initiating a socket = "requesting a phone line"
+	* socket(domain, type, protocol)
+	* AF_INET = IPv4 internet protocol
+	* SOCK_RAW = direct IP service, provides raw network protocol access */ 
    sock_raw = socket(AF_INET, SOCK_RAW, IPPROTO_UDP);
 	if(sock_raw < 0){
 		printf("Socket raw Error\n");
@@ -16,7 +19,9 @@ void bsocket::set_listen_timeout(int val){
 	listen_timeout = val;
 }
 
-
+/* listen for connections on a socket, 
+* on succeess 0 is returned
+* on error -1 is returned */
 int bsocket::listen(){
 	saddr_size = sizeof saddr;
 	return recvfrom(sock_raw, buffer, 65536 ,0 ,&saddr ,&saddr_size);	
@@ -38,7 +43,7 @@ void bsocket::process_packet(unsigned int size, socket_val socket_vals[], int nu
 	}
 }
 
-
+// transmitting a message to another socket, send() is like write() but with flags
 int bsocket::send(const char* addr, int port, int vals[], int num_vals){
 	struct sockaddr_in si_other;
 	int slen = sizeof(si_other);
@@ -60,7 +65,8 @@ int bsocket::send(const char* addr, int port, int vals[], int num_vals){
 		message[i] = (char)vals[i];
 	}
 		
-	
+	// initializing a new socket of type DGRAM
+	// SOCK_DGRAM supports datagrams = connectionless, unreliable messages of a fixed maximum length	
 	int sock = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
 	if(sendto(sock, message, strlen(message), 0, (struct sockaddr *) &si_other, slen) == -1){
 		printf("Asendto() failed\n");
@@ -96,6 +102,7 @@ int bsocket::send(const char* addr, int port, double vals[], int num_vals){
 		}
 	}
 	
+	// initializing a new socket of type DGRAM
 	int sock = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
 	if(sendto(sock, message, num_vals*8, 0 , (struct sockaddr *) &si_other, slen) == -1){
 		printf("sendto() failed\n");
@@ -188,6 +195,7 @@ std::string double2hexstr(double x){
 }
 
 
+// constructor
 socket_val::socket_val(int type_, int port_, int num_vals_, std::string description_){
 	if(port_ > 0) port = port_;
 	num_vals = num_vals_;
@@ -205,6 +213,7 @@ socket_val::socket_val(int type_, int port_, int num_vals_, std::string descript
 	}
 }
 
+// destructor
 socket_val::~socket_val(){
 	delete[] d_vals;
 	delete[] i_vals;
