@@ -11,14 +11,15 @@ PCA9685::PCA9685(int handle_) {
 
 void PCA9685::init(int freq_) {
 	pwmFreq = freq_;
+	// Modified limits each servo 
 	servoMin[0] = SERVOMIN; 
 	servoMin[1] = SERVOMIN + 15; 
 	servoMin[2] = SERVOMIN + 5; 
 	servoMin[3] = SERVOMIN + 10; 
-	servoMax[0] = SERVOMAX - 15; 
-	servoMax[1] = SERVOMAX; 
-	servoMax[2] = SERVOMAX - 10; 
-	servoMax[3] = SERVOMAX - 5;
+	servoMax[0] = SERVOMAX; 
+	servoMax[1] = SERVOMAX + 15; 
+	servoMax[2] = SERVOMAX + 5; 
+	servoMax[3] = SERVOMAX + 10;
 	reset();
 	set_freq(pwmFreq);
 }
@@ -56,7 +57,7 @@ void PCA9685::set_freq(int freq){
 	i2c_write_pos(handle, buffer, 1, PCA9685_MODE1);
 }
 
-// Sending one i2c signal 
+// Sending one i2c signal to 4 servos - not tested
 /* 
 void PCA9685::pwm_write(unsigned int on, unsigned int off[4]) {
 	// Sending i2c to all pins 0-3 
@@ -71,7 +72,7 @@ void PCA9685::pwm_write(unsigned int on, unsigned int off[4]) {
 	i2c_write(handle, buffer, 17);
 }*/
 
-// Sending 4 i2c signals 
+// Sending 4 i2c signals to 4 servos
 void PCA9685::pwm_write(unsigned int on, unsigned int off[4]) {
 	unsigned char buffer[5];
 	for(int i = 0; i<4; i++) {

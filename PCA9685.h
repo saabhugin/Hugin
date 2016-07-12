@@ -18,9 +18,9 @@
 #define PCA9685_PRESCALE 0xFE
 #define PCA9685_LED0_ON 0x6
 
-// Limits for test bench servos
+// Hard limits for test bench servos
 #define SERVOMIN   110
-#define SERVOMAX   485
+#define SERVOMAX   470
 
 class PCA9685{
 

@@ -1,0 +1,22 @@
+#------------------------------------------------------------------------------
+
+SOURCE = pwm_test.cpp PCA9685.c PCA9685.h GPIO.c GPIO.h i2cfunc.c i2cfunc.h
+MYPROGRAM = pwm_test
+MYINCLUDES = /libraries/documents/GitHub/Hugin/
+
+MYLIBRARIES = Hugin
+CC = g++
+
+#------------------------------------------------------------------------------
+
+all: $(MYPROGRAM)
+
+
+$(MYPROGRAM): $(SOURCE)
+
+	$(CC) -I$(MYINCLUDES) $(SOURCE) -o$(MYPROGRAM) -l$(MYLIBRARIES)
+
+	
+clean:
+
+	rm -f $(MYPROGRAM)

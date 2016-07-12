@@ -7,11 +7,11 @@
 // PWM reading
 volatile unsigned int pin_value;
 volatile unsigned long time_;
-int current_value;
+volatile int current_value;
 int previous_value;
 int changed_pin;
 int isChanged;
-unsigned long time_interrupt;
+volatile unsigned long time_interrupt;
 unsigned long start_time[4];
 unsigned long stop_time[4];
 const int num_pwm_channels = 4;
@@ -36,16 +36,16 @@ void setup(){
   cli();    // disables interrupts
   
   // Set input pins
-  //DDRD &= ~B00111100; // Arduino pins 2-5
-  PCICR |= 0b00000100;    // turn on port d
-  //PCICR |= 0b00000001;    // turn on port b
-  PCMSK2 |= 0b00111100;   // turn on pins PD2-5
-  //PCMSK0 |= 0b00001111;   // turn on pins PB0-3
+  DDRD &= ~B00111100; // Arduino pins 2-5
+  //PCICR |= 0b00000100;    // turn on port d
+  PCICR |= 0b00000001;    // turn on port b
+  //PCMSK2 |= 0b00111100;   // turn on pins PD2-5
+  PCMSK0 |= 0b00001111;   // turn on pins PB0-3
   //PCMSK2 |= 0b00000011;   // turn on pins PD0-1
   SBus.begin(100000); 
-  delay(10);
+  delay(500000);
   Wire.begin(5);
-  Wire.onReceive(receiveEvent);  // not necessary
+  delay(500000);
   Wire.onRequest(requestEvent);
 
   yield();
@@ -58,11 +58,10 @@ void setup(){
 }
 
 // ISR to be called for each interrupt
-ISR(PCINT2_vect) {
+ISR(PCINT0_vect) {
   time_interrupt = micros(); 
-  pin_value = (PIND&B00111100) >> 2;
-  //pin_value = (PINB&B00001111);
-  //Serial.println("Interrupted");
+  //pin_value = (PIND&B00111100) >> 2;
+  pin_value = (PINB&B00001111);
 }
 
 void loop(){
@@ -130,10 +129,6 @@ void requestEvent(){
   }
 }
 
-void receiveEvent(int num_bytes) {}
-
-void check_pins(){}
-
 void check_SBus(){
   if(SBus.available() > 24){
     int pos = 0;
@@ -153,7 +148,4 @@ void check_SBus(){
   }
 }
 
-void check_output(){
-
-}
 

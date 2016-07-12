@@ -40,7 +40,7 @@ int main(){
 	const int num_sbus_channels = 13;
 	rcreader rcr(i2c_open(1, 0x05), num_channels);
 	int channels[num_channels];
-	int ext_channels_d[4];
+	double ext_channels_d[4];
 	double sbus_channels_d[num_sbus_channels];
 	int print_counter = 0;
 	usleep(50000);
@@ -55,6 +55,7 @@ int main(){
 	// Initialize magnetometer (part of FreeIMU)
 	HMC5883L mag(i2c_open(1,MAG_ADDR));
 	mag.init();
+	usleep(50000);
 
 	// Declare values to hold IMU readings
 	double acc_d[3];
@@ -69,17 +70,17 @@ int main(){
 	// Init LED
 	int light  = 1;
 	int led_counter = 0;
-	GPIO led(30);
-	led.init(0, light);
-	/*led_init();
-	led_write(light);*/
+	GPIO led("30");
+	led.init(1, light);		// direction = OUT, value = HIGH
 	
 	// Init PWM 
 	PCA9685 pwm_out(i2c_open(1, 0x40));
-	pwm_out.init(50);
-	GPIO OE(49);
-	OE.init(1, 0);
-	
+	usleep(50000);
+	pwm_out.init(50);		// frequency as argument 
+	GPIO OE("49");
+	OE.init(1, 0);			// direction = OUT, value = LOW
+	double ctrl_signal[4] = {0.5, 0.5, 0, 0};	// manual control signal (0-1) to the 4 servos
+	pwm_out.signal(ctrl_signal);
 	
 	// INITIALIZATION COMPLETED
 	printf("Hugin program started!\n");
@@ -91,25 +92,17 @@ int main(){
 			// Ready to receive
 			
 			// Pace keeper packet received
-			if(socket_vals[0].i_vals[0] == 1){		// i_vals accesses the ready signal
-				socket_vals[0].i_vals[0] = 0;
+			if(socket_vals[0].i_vals[0]){
+				printf("%d \n", 1);
+				socket_vals[0].i_vals[0] = 0;		// i_vals accesses the ready signal
 				
 				// Set PWM outputs
-				pwm_out.signal(socket_vals[1].d_vals);	// d_vals accesses the motor signals 
+				//pwm_out.signal(socket_vals[1].d_vals);
 				
-				/*double ctrl_signal[4] = {0, 0, 1, 1};	// control signal (0-1) to the 4 servos
-				pwm_out.signal(ctrl_signal);*/
-				
-				/*for(int i = 0; i<4; i++) {
-					ctrlSignal[i] = 0;
-				}
-				pwm_out.signal(ctrlSignal);
-				usleep(1000000);
-				for(int i = 0; i<4; i++) {
-					ctrlSignal[i] = 1;
-				}
-				pwm_out.signal(ctrlSignal);
-				usleep(1000000);*/
+				// print socket values for checking
+				/*for(int i=0; i<4; i++) {
+					printf("Socket: %d %f \n", i, socket_vals[1].d_vals[i]);
+				}*/
 				
 				// Get IMU readings
 				imu.get_accelerations(acc_d);
@@ -124,17 +117,12 @@ int main(){
 				rcr.get_readings(channels);
 				for(int i = 0; i < 4; i++){
 					// From range 900-2100 to 0.0-1.0 
-					//ext_channels_d[i] = ((double)(channels[i]-900))/1200.0;  // (Val - min_time) / (max_time - min_time)
-					ext_channels_d[i] = channels[i];
+					//ext_channels_d[i] = (double)channels[i];
+					ext_channels_d[i] = ((double)(channels[i]-1000))/1200.0;  // (Val - min_time) / (max_time - min_time)
+					printf("SBUS signal: %d %f \n", i, ext_channels_d[i]);
 				}
-				// Printing every 10th PWM measurement 
-				/*if(print_counter > 10) {
-					for(int i=0; i<4; i++) {
-						printf("PWM signal (us): %d %d \n", i, ext_channels_d[i]);
-						//printf("PWM frequency (us): %d %d \n", i, ext_channels_d[i]);
-					}
-					print_counter = 0;
-				}*/
+
+				// initializing SBUS communication
 				rcr.parse_SBus(channels, sbus_channels_d);
 				
 				// Send updates via UDP
