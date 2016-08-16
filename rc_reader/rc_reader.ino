@@ -36,11 +36,12 @@ void setup(){
   cli();    // disables interrupts
   
   // Set input pins
-  DDRD &= ~B00111100; // Arduino pins 2-5
+  DDRD &= ~B00111100; // Arduino pins 2-5, for serial
   //PCICR |= 0b00000100;    // turn on port d
   PCICR |= 0b00000001;    // turn on port b
   //PCMSK2 |= 0b00111100;   // turn on pins PD2-5
-  PCMSK0 |= 0b00001111;   // turn on pins PB0-3
+  //PCMSK0 |= 0b00001111;   // turn on pins PB0-3
+  PCMSK0 |= 0b00011110;   // turn on pins PB1-4, for pwm reading
   //PCMSK2 |= 0b00000011;   // turn on pins PD0-1
   SBus.begin(100000); 
   delay(500000);
@@ -61,7 +62,8 @@ void setup(){
 ISR(PCINT0_vect) {
   time_interrupt = micros(); 
   //pin_value = (PIND&B00111100) >> 2;
-  pin_value = (PINB&B00001111);
+  //pin_value = (PINB&B00001111);
+  pin_value = (PINB&B00011110)>>1;
 }
 
 void loop(){
