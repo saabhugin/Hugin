@@ -71,9 +71,12 @@ do
 	if [ $c -eq 1 ] # If pressed
 	then
 	# Start hugin programs for logging
-		/root/hugin&
+		/usr/hugin/hugin&
 		/root/main.elf
-		#When main.elf ends, change filename
+		#When main.elf ends, change filename after a short break
+		echo 1 0 /sys/class/gpio/gpio30/value # turn of the blue LED
+		# The sleep time is used to ensure the logfile is saved correctly
+		sleep 5s
 		#
 		#
 		#Search till new filename is found.
