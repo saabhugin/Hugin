@@ -32,6 +32,7 @@ public:
 	void set_freq(int freq_);
 	//unsigned int get_freq();
 	void signal(double ctrlSignal[4]);
+	void signal_s(double ctrlSignal, int servoNum);
 	void set_OE();
 
 private:
@@ -40,6 +41,9 @@ private:
 	int servoMin[4]; 
 	int servoMax[4];
 	void pwm_write(unsigned int on, unsigned int off[4]);
+	void pwm_write_single(unsigned int on, unsigned int off, int servoNum);
+	unsigned int pwmPulse[4];
+	unsigned int pwmPulse_s;
 	//int pwm_read();
 };
 

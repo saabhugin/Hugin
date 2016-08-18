@@ -57,7 +57,7 @@ void PCA9685::set_freq(int freq){
 	i2c_write_pos(handle, buffer, 1, PCA9685_MODE1);
 }
 
-// Sending one i2c signal to 4 servos - not tested
+// Sending one long i2c signal to all servos - not tested
 /* 
 void PCA9685::pwm_write(unsigned int on, unsigned int off[4]) {
 	// Sending i2c to all pins 0-3 
@@ -72,7 +72,7 @@ void PCA9685::pwm_write(unsigned int on, unsigned int off[4]) {
 	i2c_write(handle, buffer, 17);
 }*/
 
-// Sending 4 i2c signals to 4 servos
+// Sending separate i2c signals to all servos
 void PCA9685::pwm_write(unsigned int on, unsigned int off[4]) {
 	unsigned char buffer[5];
 	for(int i = 0; i<4; i++) {
@@ -86,9 +86,22 @@ void PCA9685::pwm_write(unsigned int on, unsigned int off[4]) {
 	}
 }
 
+
+// Sending i2c signal to one servo
+void PCA9685::pwm_write_single(unsigned int on, unsigned int off, int servoNum) {
+	unsigned char buffer[5];
+	buffer[0] = PCA9685_LED0_ON + 4*servoNum;
+	buffer[1] = on & 0xFF;
+	buffer[2] = on>>8;
+	buffer[3] = off & 0xFF;
+	buffer[4] = off>>8;
+	i2c_write(handle, buffer, 5);
+	usleep(5);
+}
+
+// Sending a control signal to all servos
 void PCA9685::signal(double ctrlSignal[4]) {	
 	// Translating the control signal to pwm pulse
-	unsigned int pwmPulse[4];
 	for(int i = 0; i<4; i++) {
 		pwmPulse[i] = servoMin[i] + 360*ctrlSignal[i];
 		// checking servoMax is not exceeded,
@@ -102,6 +115,22 @@ void PCA9685::signal(double ctrlSignal[4]) {
 	}
 		pwm_write(0, pwmPulse);	// pwm signal out to pin 0-3 simultaneously, (start, stop)
 }
+
+// Sending a control signal to one servo 
+void PCA9685::signal_s(double ctrlSignal, int servoNum) {	
+	// Translating the control signal to pwm pulse
+		pwmPulse_s = servoMin[servoNum] + 360*ctrlSignal;
+		// checking servoMax is not exceeded,
+		if(pwmPulse_s > servoMax[servoNum]) {
+			pwmPulse_s = servoMax[servoNum];
+		}
+		// checking servoMin is not exceeded,
+		if(pwmPulse_s < servoMin[servoNum]) {		
+			pwmPulse_s = servoMin[servoNum];
+		} 
+		pwm_write_single(0, pwmPulse_s, servoNum);
+}
+
 
 // Predefined setting for OE pin, the system will stop when OE is HIGH
 // Note that this is the default value, possible values are 00, 01, 10, 11, see PCA9685 data sheet for function

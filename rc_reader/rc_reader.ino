@@ -14,6 +14,8 @@ int isChanged;
 volatile unsigned long time_interrupt;
 unsigned long start_time[4];
 unsigned long stop_time[4];
+unsigned long mean_val[4];
+unsigned int pulse_iter[4] = {1, 1, 1, 1};
 const int num_pwm_channels = 4;
 unsigned long prev_time[4] = {0, 0, 0, 0};    // if one is interested in measuring the PWM period un-comment here and in loop
 unsigned long freq_time[4];
@@ -88,7 +90,11 @@ void loop(){
           prev_time[i] = time_;*/
          }
         // if FALSE, pin is LOW --> stop timer
-        else {stop_time[i] = time_ - start_time[i];}
+        else {
+          stop_time[i] = time_ - start_time[i];
+          mean_val[i] = mean_val[i]*(pulse_iter[i]-1)/pulse_iter[i] + stop_time[i]/pulse_iter[i];  // mean value 
+          pulse_iter[i]++;
+        }
       }
     }
   }
@@ -106,9 +112,11 @@ void requestEvent(){
   // for loop is inverted because 0001 ~ index 3 (etc) but will be checked first in PWM reading
   for(int i = 3; i > -1; i--){
     // An unsigned int consists of two bytes. 
-    buffer[2*i] = stop_time[i] >> 8;
-    buffer[2*i+1] = stop_time[i] & 0xFF;
+    buffer[2*i] = mean_val[i] >> 8;
+    buffer[2*i+1] = mean_val[i] & 0xFF;
+    pulse_iter[3-i] = 1;
   } 
+  // reset pulse counter
 
   // Send PWM period timing (remember to comment eihter this section or PWM signal section above)
   /*for(int i = 3; i>-1; i--) {

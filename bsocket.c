@@ -56,7 +56,8 @@ int bsocket::send(const char* addr, int port, int vals[], int num_vals){
 	}
 	
 	// Init first 8 bytes to 0
-	char message[512];
+	char message[num_vals*8 +2];
+	//char message[512];
 	for(int i = 0; i < 8; i++){
 		message[i] = 0;
 	}
@@ -68,6 +69,7 @@ int bsocket::send(const char* addr, int port, int vals[], int num_vals){
 	// initializing a new socket of type DGRAM
 	// SOCK_DGRAM supports datagrams = connectionless, unreliable messages of a fixed maximum length	
 	int sock = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
+	printf("bsocket::send strlen(message), %d\n", strlen(message));
 	if(sendto(sock, message, strlen(message), 0, (struct sockaddr *) &si_other, slen) == -1){
 		printf("Asendto() failed\n");
 		exit(1);
@@ -104,7 +106,8 @@ int bsocket::send(const char* addr, int port, double vals[], int num_vals){
 	
 	// initializing a new socket of type DGRAM
 	int sock = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
-	if(sendto(sock, message, num_vals*8, 0 , (struct sockaddr *) &si_other, slen) == -1){
+	// changed num_vals*8 to num_vals*8+2 - works the same it seems
+	if(sendto(sock, message, num_vals*8+2, 0 , (struct sockaddr *) &si_other, slen) == -1){
 		printf("sendto() failed\n");
 		return(-1);
 	}	
