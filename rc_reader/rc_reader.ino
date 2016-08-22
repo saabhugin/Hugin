@@ -39,12 +39,8 @@ void setup(){
   
   // Set input pins
   DDRD &= ~B00111100; // Arduino pins 2-5, for serial
-  //PCICR |= 0b00000100;    // turn on port d
   PCICR |= 0b00000001;    // turn on port b
-  //PCMSK2 |= 0b00111100;   // turn on pins PD2-5
-  //PCMSK0 |= 0b00001111;   // turn on pins PB0-3
   PCMSK0 |= 0b00011110;   // turn on pins PB1-4, for pwm reading
-  //PCMSK2 |= 0b00000011;   // turn on pins PD0-1
   SBus.begin(100000); 
   delay(500000);
   Wire.begin(5);
@@ -63,22 +59,19 @@ void setup(){
 // ISR to be called for each interrupt
 ISR(PCINT0_vect) {
   time_interrupt = micros(); 
-  //pin_value = (PIND&B00111100) >> 2;
-  //pin_value = (PINB&B00001111);
   pin_value = (PINB&B00011110)>>1;
 }
 
 void loop(){
-  // atomic block makes sure the values are copied without getting interrupted
-  ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
-    time_ = time_interrupt;
-    current_value = pin_value;
-  }
-
  // PWM signal timer
- // if current_value XOR previous_value = TRUE an interrupt occured
-  changed_pin = current_value ^ previous_value;
-  if(changed_pin) {
+  // if pin_value XOR previous_value = TRUE an interrupt occured
+  if(pin_value^previous_value) {
+    // atomic block makes sure the values are copied without getting interrupted
+    ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
+      time_ = time_interrupt;
+      current_value = pin_value;
+    }
+    changed_pin = current_value ^ previous_value;
     for(int i=0; i<4; i++) {
       isChanged = (changed_pin >> i) & 1;   // shift down 0,1,2,3 bits and pick out the last one to check if changed (1) or not (0)
       // if TRUE, index i changed --> check if HIGH or LOW
@@ -92,18 +85,16 @@ void loop(){
         // if FALSE, pin is LOW --> stop timer
         else {
           stop_time[i] = time_ - start_time[i];
-          mean_val[i] = mean_val[i]*(pulse_iter[i]-1)/pulse_iter[i] + stop_time[i]/pulse_iter[i];  // mean value 
+          mean_val[i] = stop_time[i];
+          //mean_val[i] = mean_val[i]*(pulse_iter[i]-1)/pulse_iter[i] + stop_time[i]/pulse_iter[i];  // mean value 
           pulse_iter[i]++;
         }
       }
     }
+    previous_value = current_value;
   }
-  previous_value = current_value;
-
   check_SBus();    // Read SBus signal
-
 }
-
 
 // On I2C request, put all channel values in a buffer and send buffer
 // Send PWM and SBUS to BBB
@@ -116,7 +107,6 @@ void requestEvent(){
     buffer[2*i+1] = mean_val[i] & 0xFF;
     pulse_iter[3-i] = 1;
   } 
-  // reset pulse counter
 
   // Send PWM period timing (remember to comment eihter this section or PWM signal section above)
   /*for(int i = 3; i>-1; i--) {
