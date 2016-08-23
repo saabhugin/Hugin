@@ -19,7 +19,6 @@
 #include "bsocket.h"
 #include "rcreader.h"
 #include "VC01.h"
-#include "led.h"
 #include "PCA9685.h"
 #include "GPIO.h"
 
@@ -31,8 +30,6 @@
 int main(){	
 	// Mode settings
 	bool debug = 1;			// true --> printing signals while running
-	bool setup_test = 1;	// true --> test bench / servos, false --> quad / hugin 
-	bool setup_hugin = 1 - setup_test;		// *do not change this* 
 	
 	// Create socket and set listen time out
 	bsocket sock(65536);
@@ -55,7 +52,6 @@ int main(){
 	int channels[num_channels];
 	double pwm_readings_d[num_pwm_channels];
 	double sbus_channels_d[num_sbus_channels];
-	int print_counter = 0;
 	usleep(50000);
 	
 	// Initialise IMU
@@ -154,7 +150,6 @@ int main(){
 				distance[0] = distance_sensor.get_distance();
 				
 				// Get RC readings (PWM)
-				print_counter++;
 				rcr.get_readings(channels);
 
 				for(int i = 0; i < 4; i++) {
