@@ -5,20 +5,19 @@
 
   
 // PWM reading
-volatile unsigned int pin_value;
-volatile unsigned long time_;
-volatile int current_value;
-int previous_value;
-int changed_pin;
-int isChanged;
-volatile unsigned long time_interrupt;
-unsigned long start_time[4];
-unsigned long stop_time[4];
-unsigned long mean_val[4];
-unsigned int pulse_iter[4] = {1, 1, 1, 1};
+volatile unsigned int pin_value=0;
+volatile unsigned long time_interrupt=0;
+int current_value=0;
+int previous_value=0;
+int changed_pin=0;
+int isChanged=0;
+unsigned long time_=0;
+unsigned long start_time[4]={0,0,0,0};
+unsigned long stop_time[4]={0,0,0,0};
+//unsigned long mean_val[4]={0,0,0,0};
+//unsigned int pulse_iter[4] = {1, 1, 1, 1};
 const int num_pwm_channels = 4;
-unsigned long prev_time[4] = {0, 0, 0, 0};    // if one is interested in measuring the PWM period un-comment here and in loop
-unsigned long freq_time[4];
+unsigned long prev_time[4] = {0, 0, 0, 0};
 
 // SBus variables
 const int sBus_bytes = 18; // 11 bits per channel + 1 byte for fail-safe, packet drop and two digital channels
@@ -33,21 +32,20 @@ unsigned int counter = 0; // Counter to check when to turn led on/off
 unsigned int light = 1; 
 unsigned int LED = 13; // PIN number for LED
 
-
+// Activate pins and set up i2c communication
 void setup(){  
   cli();    // disables interrupts
   
   // Set input pins
-  DDRD &= ~B00111100; // Arduino pins 2-5, for serial
-  PCICR |= 0b00000001;    // turn on port b
-  PCMSK0 |= 0b00011110;   // turn on pins PB1-4, for pwm reading
+  PCICR |= 0b00000001;    // turn on port B for interrupts
+  PCMSK0 |= 0b00011110;   // mask out pins PB1-4, for pwm reading
   SBus.begin(100000); 
   delay(500000);
   Wire.begin(5);
   delay(500000);
   Wire.onRequest(requestEvent);
 
-  yield();
+  yield(); //not sure what this does
 
   // LED out
   pinMode(LED , OUTPUT);
@@ -71,47 +69,48 @@ void loop(){
       time_ = time_interrupt;
       current_value = pin_value;
     }
-    changed_pin = current_value ^ previous_value;
-    for(int i=0; i<4; i++) {
-      isChanged = (changed_pin >> i) & 1;   // shift down 0,1,2,3 bits and pick out the last one to check if changed (1) or not (0)
-      // if TRUE, index i changed --> check if HIGH or LOW
-      if(isChanged) {
-        // if TRUE, pin is HIGH --> start timer
-        if((current_value >> i) & 1) {
-          start_time[i] = time_;
-          /*freq_time[i] = time_ - prev_time[i];    // for PWM period measuring
-          prev_time[i] = time_;*/
-         }
-        // if FALSE, pin is LOW --> stop timer
-        else {
-          stop_time[i] = time_ - start_time[i];
-          mean_val[i] = stop_time[i];
-          //mean_val[i] = mean_val[i]*(pulse_iter[i]-1)/pulse_iter[i] + stop_time[i]/pulse_iter[i];  // mean value 
-          pulse_iter[i]++;
-        }
-      }
-    }
+    PWM_reading(time_, current_value, previous_value);
     previous_value = current_value;
   }
   check_SBus();    // Read SBus signal
 }
 
+// Function gets called everytime an interrupt occurs (i.e. a pin changes)
+void PWM_reading(unsigned long time_, int current_value, int previous_value){
+  changed_pin = current_value ^ previous_value;
+  for(int i=0; i<4; i++) {
+    isChanged = (changed_pin >> i) & 1;   // shift down 0,1,2,3 bits and pick out the last one to check if changed (1) or not (0)
+    // if TRUE, index i changed --> check if HIGH or LOW
+    if(isChanged) {
+      // if TRUE, pin is HIGH --> start timer
+      if((current_value >> i) & 1) {
+        start_time[i] = time_;
+       }
+      // if FALSE, pin is LOW --> stop timer
+      else {
+        stop_time[i] = time_ - start_time[i];
+        //mean_val[i] = mean_val[i]*(pulse_iter[i]-1)/pulse_iter[i] + stop_time[i]/pulse_iter[i];  // mean value 
+        //pulse_iter[i]++;
+      }
+    }
+  }
+}
+     
 // On I2C request, put all channel values in a buffer and send buffer
 // Send PWM and SBUS to BBB
 void requestEvent(){
   // Send PWM signal measurements 
-  // for loop is inverted because 0001 ~ index 3 (etc) but will be checked first in PWM reading
+  // for loop is inverted because PWM signal 3 will be checked first in PWM reading and thus correspond to inedex 0 in stop_time
   for(int i = 3; i > -1; i--){
-    // An unsigned int consists of two bytes. 
-    buffer[2*i] = mean_val[i] >> 8;
-    buffer[2*i+1] = mean_val[i] & 0xFF;
-    pulse_iter[3-i] = 1;
-  } 
+    // An unsigned int consists of two bytes and i2c can only send 1 byte at a time
+    buffer[2*i] = stop_time[i] >> 8;
+    buffer[2*i+1] = stop_time[i] & 0xFF;
 
-  // Send PWM period timing (remember to comment eihter this section or PWM signal section above)
-  /*for(int i = 3; i>-1; i--) {
-      buffer[2*i] = freq_time{i] >> 8;
-      buffer[2*i+1] = freq_time[i] & 0xFF;*/   
+    // sending the mean value instead of last measured value
+    //buffer[2*i] = mean_val[i] >> 8;
+    //buffer[2*i+1] = mean_val[i] & 0xFF;
+    //pulse_iter[3-i] = 1;
+  }  
  
   // Fix SBus data
   for(int i = 2*num_pwm_channels; i < 2*num_pwm_channels + sBus_bytes; i++){
@@ -120,7 +119,8 @@ void requestEvent(){
   buffer[buffer_size - 1] = sBuffer[23];
   
   Wire.write(buffer, (uint8_t)(buffer_size));
-   
+
+   // LED turns off/on every 10th i2c message sent
    counter++;
   if(counter > 10){
     light = !light;
@@ -136,10 +136,6 @@ void check_SBus(){
       uint8_t data = SBus.read();
       sBuffer[pos++] = data;
       if(pos == 24){
-        // First byte should be 0x0F
-//        if(sBuffer[0] == 0x0F){
-//          SBusParser();
-//        }
         while(SBus.available()){
           char data = SBus.read();
         }

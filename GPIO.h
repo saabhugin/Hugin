@@ -17,24 +17,29 @@
 #include <unordered_set>
 
 #define SET_PATH "/sys/class/gpio/export" 
+#define HIGH 1
+#define LOW 0
+#define OUT 1
+#define IN 0
 
 class GPIO{
 	
 public:
 	GPIO();
-	GPIO(std::string port_);
-	void init(bool dir_val, bool value_);
+	GPIO(std::string port);
+	void init(bool direction, bool value);
 	void set_pin();
-	void set_direction(bool dir_val); 		// 1 = out, 0 = in 
-	void write(bool value_);				// 1 = HIGH, 0 = LOW
+	void set_direction(bool direction); 
+	void write(bool value);
+	bool read();
 	
 private:
-	std::string GPIO_port;
+	std::string port_;
+	bool direction_;
 	std::string PINPATH;
 	std::string PINDIR;
 	std::string PINVAL;
 	std::fstream fs;
-	
 };
 
 #endif
