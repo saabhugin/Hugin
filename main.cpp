@@ -91,7 +91,7 @@ int main(){
 				// Set PWM outputs
 				// Test to use throttle as output for every motor
 				for(int i= 0; i<4; i++){
-					ctrl_signal[i]=socket_vals[1].d_vals[3];
+					ctrl_signal[i]=socket_vals[1].d_vals[2];
 				}
 				pwm_out.signal(ctrl_signal);
 				
