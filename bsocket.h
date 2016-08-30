@@ -38,8 +38,8 @@ class bsocket{
 	int listen();
 	void process_packet(unsigned int size, socket_val socket_vals[], int num_socket_vals);
 
-	int send(const char* addr, int port, int vals[], int num_vals);
-	int send(const char* addr, int port, double vals[], int num_vals);
+	int send(const char* addr, int port, int vals[], int num_vals);		// send data of type int
+	int send(const char* addr, int port, double vals[], int num_vals);	// send data of type double
 	
 	private:
 	int listen_timeout;
@@ -74,14 +74,14 @@ class socket_val{
 	int num_vals;
 	
 	socket_val(int type_, int port_, int num_vals_, std::string description_);
-	~socket_val();
+	~socket_val();		// destructor
 	
 	void update_vals(double in_vals[]);
 	void update_vals(int in_vals[]);
 	void print();
 	
-	double* d_vals;
-	int* i_vals;
+	double* d_vals;		// pointer to values of type double
+	int* i_vals;		// pointer to values of type int
 	
 	private:
 	std::string description;

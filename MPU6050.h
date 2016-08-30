@@ -95,7 +95,7 @@ class MPU6050{
 	int get_sleep_mode();
 	void set_sleep_mode(int sleep_mode);	
 	
-	// Range of acceleratometer functions. Default: +- 2g
+	// Range of accelerometer functions. Default: +- 2g
 	void set_range_acceleration(unsigned char range);
 	unsigned char get_range_acceleration();
 	int16_t get_fs_acceleration();

@@ -12,6 +12,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <time.h>
+#include <iomanip>
 #include "i2cfunc.h"
 
 
@@ -37,7 +38,7 @@ int i2c_write(int handle, unsigned char* buf, unsigned int length)
 {
   if (write(handle, buf, length) != length)
   {
-    fprintf(stderr, "i2c_write error: %s\n", strerror(errno));
+    fprintf(stderr, "i2c_write error 0x%X: %s\n", handle, strerror(errno));
     return(-1);
   }
   return(length);
@@ -47,7 +48,7 @@ int i2c_write_byte(int handle, unsigned char val)
 {
   if (write(handle, &val, 1) != 1)
   {
-    fprintf(stderr, "i2c_write_byte error: %s\n", strerror(errno));
+    fprintf(stderr, "i2c_write_byte error 0x%X: %s\n", handle, strerror(errno));
     return(-1);
   }
   return(1);
@@ -57,7 +58,7 @@ int i2c_read(int handle, unsigned char* buf, unsigned int length)
 {
   if (read(handle, buf, length) != length)
   {
-    fprintf(stderr, "i2c_read error: %s\n", strerror(errno));
+    fprintf(stderr, "i2c_read error 0x%X: %s\n", handle, strerror(errno));
     return(-1);
   }
   return(length);
@@ -67,7 +68,7 @@ int i2c_read_byte(int handle, unsigned char* val)
 {
   if (read(handle, val, 1) != 1)
   {
-    fprintf(stderr, "i2c_read_byte error: %s\n", strerror(errno));
+    fprintf(stderr, "i2c_read_byte error 0x%X: %s\n", handle, strerror(errno));
     return(-1);
   }
   return(1);
@@ -77,7 +78,7 @@ int i2c_close(int handle)
 {
   if ((close(handle)) != 0)
   {
-    fprintf(stderr, "i2c_close error: %s\n", strerror(errno));
+    fprintf(stderr, "i2c_close error 0x%X: %s\n", handle, strerror(errno));
     return(-1);
   }
   return(0);
@@ -105,7 +106,7 @@ int i2c_write_read(int handle,
 	
 	if (ioctl(handle,I2C_RDWR,(unsigned long)&msgset)<0)
   {
-		fprintf(stderr, "i2c_write_read error: %s\n",strerror(errno));
+		fprintf(stderr, "i2c_write_read error 0x%X: %s\n", handle, strerror(errno));
     return -1;
   } 
   return(len_r);
@@ -127,7 +128,7 @@ int i2c_write_ignore_nack(int handle,
 	
 	if (ioctl(handle,I2C_RDWR,(unsigned long)&msgset)<0)
   {
-		fprintf(stderr, "i2c_write_ignore_nack error: %s\n",strerror(errno));
+		fprintf(stderr, "i2c_write_ignore_nack error 0x%X: %s\n", handle, strerror(errno));
     return -1;
   } 
   return(length);
@@ -149,7 +150,7 @@ int i2c_read_no_ack(int handle,
 	
 	if (ioctl(handle,I2C_RDWR,(unsigned long)&msgset)<0)
   {
-		fprintf(stderr, "i2c_read_no_ack error: %s\n",strerror(errno));
+		fprintf(stderr, "i2c_read_no_ack error 0x%X: %s\n", handle, strerror(errno));
     return -1;
   } 
   return(length);

@@ -4,20 +4,22 @@
  * Class file for rcreader class. 
  *
  * rcreader is the object that handles all connection between the ATmega and the BeagleboneBlack.
- * The communication protocoll is i2c, but the common user does not need to understand the 
+ * The communication protocol is i2c, but the common user does not need to understand the 
  * i2c protocol to use the rcreader class.
  *
- * Functions for fetching PWM and SBUS readings from ATmega and funcion to command the ATmega to set new PWM signals.
+ * Functions for fetching PWM and SBUS readings from ATmega.
  */
 
 #ifndef RCREADER_H
 #define RCREADER_H
 #include "i2cfunc.h"
 #include <stdint.h>
+#include <cstdio>
 
 
 class rcreader{
-	public:
+	
+public:
 	rcreader();
 	rcreader(int handle_, int num_channels_);
 	
@@ -33,9 +35,7 @@ class rcreader{
 	// Function for unpacking the SBUS values fetched using get_readings()
 	void parse_SBus(int* channels, double* SBus_channels_d);
 	
-	// Sends command to ATmega to apply new PWM signals to the motors.
-	void set_pwm(double* pwm, int ch); // pwm* array with doubles (0-1) ch number of values in pwm*;
-	private:
+private:
 	int handle; // I2C handle for use with i2cfunc
 	int num_channels;
 };
