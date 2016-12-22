@@ -1,0 +1,5 @@
+# Simulink build files
+
+main_ert_rtw/
+slprj/
+*.R2014b
