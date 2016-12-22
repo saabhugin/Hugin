@@ -1,0 +1,5 @@
+# Simulink build and log files
+*.mat
+slprj/
+main_ert_rtw/
+*.r2014b
