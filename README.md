@@ -11,3 +11,5 @@ Start the main program and the compiled main model program from the Linux consol
 
 ## Retreiving data
 Data is stored onboard. WinSCP can be a good choice for file transfer.
+
+The data is recored and, if the software is inialized with the `hugin_start.sh` shell script, the files will be automatically renamed to minimize risk of overwriting results.
