@@ -4,3 +4,7 @@ slprj/
 main_ert_rtw/
 *_ert_rtw/
 *.r2014b
+
+# Temporary files
+*~
+\#*#
