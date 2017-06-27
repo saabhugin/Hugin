@@ -26,8 +26,12 @@ int get_imu_data(float* angles){
 			return -1;
         }
 		
-	// rescale the quaternation values recieved from the IMU from longs to floats
+	// rescale the quaternion values recieved from the IMU from longs to floats	
 	rescale_l(quat, angles+9, QUAT_SCALE, 4);
+
+	// rotate quternion 180 degrees around x-axis
+	float quat_rotation[4] = {0, 1, 0, 0};
+	q_multiply(quat_rotation, angles+9, angles+9);	
 	
 	// rescale the gyro and accel values received from the IMU from shorts to floats
     rescale_s(gyro, angles+3, GYRO_SCALE, 3);
@@ -142,9 +146,10 @@ inline void __no_operation(){
 
 }
 
+// turn quaternions into euler anlges
 void euler(float* q, float* euler_angles) {
     euler_angles[2] = atan2(2*(q[0]*q[1] + q[2]*q[3]), 1 - 2*(q[1]*q[1] + q[2]*q[2])); // phi, roll
-    euler_angles[1] = asin(2*(q[0]*q[2] + q[1]*q[3])); // theta, pitch
+    euler_angles[1] = -asin(2*(q[0]*q[2] + q[1]*q[3])); // theta, pitch
     euler_angles[0] = atan2(2*(q[0]*q[3] - q[1]*q[2]), 1 - 2*(q[2]*q[2] + q[3]*q[3])); // psi, yaw
 }
 
