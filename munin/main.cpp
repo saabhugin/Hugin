@@ -71,7 +71,7 @@ int main(){
 	// GPIO setup
 	int light = 1;
 	int led_counter = 0;
-	GPIO led("49");
+	GPIO led("30");
 	led.init(OUT,HIGH);
 	
 	// Init PWM 
