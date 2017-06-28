@@ -74,7 +74,7 @@ int main(){
 	int light = 1;
 	int led_counter = 0;
 	GPIO led("30");
-	led.init(OUT,HIGH);
+	led.init(OUT,light);
 	
 	// Init PWM 
 	PCA9685 pwm_out(i2c_open(1, 0x40));
@@ -94,7 +94,7 @@ int main(){
 			
 			// Pace keeper packet received (i.e. flag)
 			if(socket_vals[0].i_vals[0]){				
-				socket_vals[0].i_vals[0] = 0;		// reset the flag, i_vals accesses the ready signal				
+				socket_vals[0].i_vals[0] = 0;	// reset the flag, i_vals accesses the ready signal				
 				
 				// Set PWM outputs
 				pwm_out.signal(socket_vals[1].d_vals);

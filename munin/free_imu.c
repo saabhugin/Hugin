@@ -29,7 +29,7 @@ int get_imu_data(float* angles){
 		
 	// rescale the quaternion values recieved from the IMU from longs to floats	
 	rescale_l(quat, angles+9, QUAT_SCALE, 4);
-
+	
 	// rotate quaternion 180 degrees around x-axis
 	float quat_rotation[4] = {0, 1, 0, 0};
 	q_multiply(quat_rotation, angles+9, angles+9);	

@@ -1,7 +1,7 @@
 %%
 clear; clc; close all;
-addpath ../logfiles
-load main.mat
+addpath logfiles
+load 1062.mat
 
 %% Extract the data from yout_rt
 time = yout_rt.time;

@@ -12,7 +12,7 @@ extern "C" {
 #define MPU6050_ADDR 0x68
 #define MPU6050_WHO_AM_I 0x75
 
-#define DEFAULT_MPU_HZ 50 // Rate that DMP puts sensor data in FIFO register
+#define DEFAULT_MPU_HZ 200 // Rate that DMP samples and puts sensor data in FIFO register
 
 #define PI 3.14159
 #define QUAT_SCALE (1.0/1073741824)
@@ -21,9 +21,9 @@ extern "C" {
 
 #define ACCEL_SCALE (1.0/16384)
 
-//#define THRESHOLD (0.1*PI/180.0) // the amount that the IMU Euler values have to change less than to indicate that calibration has finished
+#define THRESHOLD (0.1*PI/180.0) // the amount that the IMU Euler values have to change less than to indicate that calibration has finished
 
-// #define CALIBRATION_TIME 20.0 // Not used?
+#define CALIBRATION_TIME 15.0 // default time in seconds to wait for calibration to be completed
 
 #include "inv_mpu_dmp_motion_driver.h"
 #include "inv_mpu.h"
@@ -45,6 +45,7 @@ extern "C" {
 int get_imu_data(float* angles);
  
 int init_imu();
+int calibrate_imu();
  
 int i2c_write(unsigned char slave_addr, unsigned char reg_addr,
         unsigned char length, unsigned char const *data);

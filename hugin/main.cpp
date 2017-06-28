@@ -57,20 +57,23 @@ int main(){
 	//mag.init();
 	//usleep(50000);
 	
+	// GPIO setup
+	int light = 1;
+	int led_counter = 0;
+	GPIO led("30");
+	led.init(OUT,0);
+	
 	// Initialize FreeIMU
 	init_imu();
+	usleep(20000); // let IMU get at least one sample ready
+	calibrate_imu();
+
 	float angles[13];
 	
 	// Declare values to hold IMU readings
 	double accel[3];
 	double gyro[3];
 	double euler[3];
-	
-	// GPIO setup
-	int light = 1;
-	int led_counter = 0;
-	GPIO led("30");
-	led.init(OUT,light);
 	
 	// Init PWM 
 	//PCA9685 pwm_out(i2c_open(1, 0x40));
@@ -81,6 +84,7 @@ int main(){
 	
 	// INITIALIZATION COMPLETED
 	printf("Hugin program started!\n");
+	led.init(OUT,1);
 	
 	while(1){
 		// Listen for packets and process if new packets have arrived 
@@ -88,7 +92,7 @@ int main(){
 		if(data_size > 0){
 			sock.process_packet(data_size, socket_vals, num_socket_vals);
 			
-			// Pace keeper packet received
+			// Pace keeper packet received (i.e. flag)
 			if(socket_vals[0].i_vals[0] == 1){
 				socket_vals[0].i_vals[0] = 0;  // reset the flag, i_vals accesses the ready signal
 				
@@ -111,12 +115,29 @@ int main(){
 						euler[i]=(double)angles[i];
 						gyro[i]=(double)angles[i+3];
 						accel[i]=(double)angles[i+6];						
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 					}	
 				}
 								
 				// Get RC readings (PWM)
 				rcr.get_readings(channels);
 				for(int i = 0; i < 4; i++){
+
 					// From range 900-2100 to 0.0-1.0 
 					pwm_readings_d[i] = ((double)(channels[i]-900))/1200.0;  // (Val - min_time) / (max_time - min_time)
 				}
