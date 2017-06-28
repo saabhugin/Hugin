@@ -22,6 +22,7 @@ int get_imu_data(float* angles){
     unsigned char more[0];
 	
 	int fifo_read = dmp_read_fifo(gyro, accel, quat, &timestamp, sensors, more);
+	mpu_reset_fifo(); // reset fifo pointer to avoid overflow (enables high sample rate in the dmp)
     if (fifo_read != 0){
 			return -1;
         }
@@ -29,7 +30,7 @@ int get_imu_data(float* angles){
 	// rescale the quaternion values recieved from the IMU from longs to floats	
 	rescale_l(quat, angles+9, QUAT_SCALE, 4);
 
-	// rotate quternion 180 degrees around x-axis
+	// rotate quaternion 180 degrees around x-axis
 	float quat_rotation[4] = {0, 1, 0, 0};
 	q_multiply(quat_rotation, angles+9, angles+9);	
 	
