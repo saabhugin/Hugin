@@ -2,6 +2,7 @@
 clear; clc; close all;
 addpath logfiles
 load 1062.mat
+version = "new";
 
 %% Extract the data from yout_rt
 time = yout_rt.time;
