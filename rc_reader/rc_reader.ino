@@ -27,14 +27,19 @@ uint8_t sBuffer[25];
 const int buffer_size = 2*num_pwm_channels + sBus_bytes + 1; // 2 bytes per PWM channel, 1 extra empty byte
 uint8_t buffer[buffer_size];
 
-// LED - variables
+// Digital outputs - variables
 unsigned int counter = 0; // Counter to check when to turn led on/off
 unsigned int light = 1; 
 unsigned int LED = 13; // PIN number for LED
+unsigned int PWM_OutputEnable = 12; // PIN number for output enable on PWM board PCA9685  
 
 // Activate pins and set up i2c communication
 void setup(){  
   cli();    // disables interrupts
+
+  // PWM output enable init
+  pinMode(PWM_OutputEnable,OUTPUT);
+  digitalWrite(PWM_OutputEnable,HIGH);
   
   // Set input pins
   PCICR |= 0b00000001;    // turn on port B for interrupts
@@ -46,7 +51,7 @@ void setup(){
   Wire.onRequest(requestEvent);
 
   yield(); //not sure what this does
-
+  
   // LED out
   pinMode(LED , OUTPUT);
   digitalWrite(LED, light);
@@ -142,6 +147,38 @@ void check_SBus(){
       }
     }
   }
+
+  // check if output enable is sent on SBus channel 11
+  double sbus_channels_d[13];
+  parse_SBus(sBuffer, sbus_channels_d);
+  if(sbus_channels_d[11] > 0.7){
+    digitalWrite(PWM_OutputEnable,LOW);
+  }
+  else{
+    digitalWrite(PWM_OutputEnable,HIGH);
+  }
+}
+
+// initializing the SBUS buffer, obtained through reversed engineering - complicated due to SBUS "secret" design 
+void parse_SBus(uint8_t* SBus_buffer, double* SBus_channels_d){
+	
+	SBus_channels_d[0]  = ((SBus_buffer[1] 			| SBus_buffer[2] << 8) 	& 0x07FF);
+	SBus_channels_d[1]  = ((SBus_buffer[2] >> 3  	| SBus_buffer[3] << 5) 	& 0x07FF);
+	SBus_channels_d[2]  = ((SBus_buffer[3] >> 6  	| SBus_buffer[4] << 2 	| SBus_buffer[5] << 10) & 0x07FF);
+	SBus_channels_d[3]  = ((SBus_buffer[5] >> 1  	| SBus_buffer[6] << 7) 	& 0x07FF);
+	SBus_channels_d[4]  = ((SBus_buffer[6] >> 4  	| SBus_buffer[7] << 4) 	& 0x07FF);
+	SBus_channels_d[5]  = ((SBus_buffer[7] >> 7  	| SBus_buffer[8] << 1  	| SBus_buffer[9] << 9) 	& 0x07FF);
+	SBus_channels_d[6]  = ((SBus_buffer[9] >> 2  	| SBus_buffer[10] << 6) & 0x07FF);
+	SBus_channels_d[7]  = ((SBus_buffer[10] >> 5  	| SBus_buffer[11] << 3) & 0x07FF);
+	SBus_channels_d[8]  = ((SBus_buffer[12] 		| SBus_buffer[13] << 8) & 0x07FF);
+	SBus_channels_d[9]  = ((SBus_buffer[13] >> 3  	| SBus_buffer[14] << 5) & 0x07FF);
+	SBus_channels_d[10] = ((SBus_buffer[14] >> 6  	| SBus_buffer[15] << 2 	| SBus_buffer[16] << 10) & 0x07FF);
+	SBus_channels_d[11] = ((SBus_buffer[16] >> 1  	| SBus_buffer[17] << 7) & 0x07FF);
+	SBus_channels_d[12] = (SBus_buffer[18] & 0b1000) >> 3; // Contains two digital channels on 0b0001 and 0b0010 as well as lost packet flag 0b0100 and fail safe active flag 0b1000
+	
+	for(int i = 0; i < 12; i++){
+		SBus_channels_d[i] = (SBus_channels_d[i] - 352) / 1344;
+	}
 }
 
 
