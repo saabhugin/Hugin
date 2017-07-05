@@ -58,7 +58,10 @@ int init_imu(){
 		dmp_set_orientation(inv_orientation_matrix_to_scalar(gyro_orientation)) ||
 		dmp_enable_feature(dmp_features) || 
 		dmp_set_fifo_rate(DEFAULT_MPU_HZ) ||
-		mpu_set_dmp_state(1)){
+		mpu_set_dmp_state(1) ||
+		mpu_set_lpf(42) || // set low pass filter frequency Hz
+		mpu_set_gyro_fsr(2000) // set gyro scale range deg/sec
+		){
 		
 		printf("Error initialzing IMU!");
 		return -1; 
