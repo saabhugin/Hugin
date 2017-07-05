@@ -31,7 +31,7 @@ uint8_t buffer[buffer_size];
 unsigned int counter = 0; // Counter to check when to turn led on/off
 unsigned int light = 1; 
 unsigned int LED = 13; // PIN number for LED
-unsigned int PWM_OutputEnable = 12; // PIN number for output enable on PWM board PCA9685  
+unsigned int PWM_OutputEnable = 2; // PIN number for output enable on PWM board PCA9685  
 
 // Activate pins and set up i2c communication
 void setup(){  
