@@ -57,6 +57,12 @@ int main(){
 	//mag.init();
 	//usleep(50000);
 	
+	// GPIO setup
+	int light = 1;
+	int led_counter = 0;
+	GPIO led("30");
+	led.init(OUT,0);
+	
 	// Initialize FreeIMU
 	init_imu();
 	usleep(20000); // let IMU get at least one sample ready
@@ -70,21 +76,17 @@ int main(){
 	double gyro[3];
 	double euler[3];
 	
-	// GPIO setup
-	int light = 1;
-	int led_counter = 0;
-	GPIO led("30");
-	led.init(OUT,light);
-	
 	// Init PWM 
 	PCA9685 pwm_out(i2c_open(1, 0x40));
 	usleep(50000);
 	pwm_out.init(50);						// frequency 50 Hz 
+	pwm_out.set_OE();
 	double ctrl_signal[4] = {0,1,0,0};	// initial control signal to the servos
 	pwm_out.signal(ctrl_signal);
 	
 	// INITIALIZATION COMPLETED
 	printf("Hugin program started!\n");
+	led.write(1);
 	
 	while(1){
 		// Listen for packets and process if new packets have arrived 
@@ -94,7 +96,7 @@ int main(){
 			
 			// Pace keeper packet received (i.e. flag)
 			if(socket_vals[0].i_vals[0]){				
-				socket_vals[0].i_vals[0] = 0;	// reset the flag, i_vals accesses the ready signal				
+				socket_vals[0].i_vals[0] = 0;		// reset the flag, i_vals accesses the ready signal				
 				
 				// Set PWM outputs
 				pwm_out.signal(socket_vals[1].d_vals);
@@ -114,8 +116,8 @@ int main(){
 					}
 					
 					//printf("Attitude: Yaw: %+5.1f\tPitch: %+5.1f\tRoll: %+5.1f\n\n", angles[0]*180.0/PI, angles[1]*180.0/PI, angles[2]*180.0/PI);
-					printf("Attitude: Yaw: %+5.1f\tPitch: %+5.1f\tRoll: %+5.1f\n\n", euler[0]*180.0/PI, euler[1]*180.0/PI, euler[2]*180.0/PI);
-					printf("Rate: p: %+5.5f\tq: %+5.5f\tr: %+5.5f\n\n", angles[3]*180.0/PI, angles[4]*180.0/PI, angles[5]*180.0/PI);
+					//printf("Attitude: Yaw: %+5.1f\tPitch: %+5.1f\tRoll: %+5.1f\n\n", euler[0]*180.0/PI, euler[1]*180.0/PI, euler[2]*180.0/PI);
+					//printf("Rate: p: %+5.5f\tq: %+5.5f\tr: %+5.5f\n\n", angles[3]*180.0/PI, angles[4]*180.0/PI, angles[5]*180.0/PI);
 					//printf("Rate: p: %+5.5f\tq: %+5.5f\tr: %+5.5f\n\n", gyro[0]*180.0/PI, gyro[1]*180.0/PI, gyro[2]*180.0/PI);
 					//printf("Acceleration: X: %+5.1f\tY: %+5.1f\tZ: %+5.1f\n\n", angles[6], angles[7], angles[8]);	
 					//printf("Acceleration: X: %+5.1f\tY: %+5.1f\tZ: %+5.1f\n\n", accel[0], accel[1], accel[2]);				
@@ -129,14 +131,16 @@ int main(){
 					printf("Number of corrupt fifo values: %d \n", count_error);
 				}
 								
-				// Get RC readings (PWM)
+				// Get RC readings
 				rcr.get_readings(channels);
+				
+				// Parse PWM readings
 				for(int i = 0; i < 4; i++) {
 					// Scale PWM signal from range SERVOMIN-SERVOMAX to 0-1.
 					pwm_readings_d[i] = ((double)channels[i]-SERVOMIN)/(SERVOMAX-SERVOMIN);	
 				}
 				
-				// Get RC readings (SBUS)
+				// Parse SBus readings
 				rcr.parse_SBus(channels, sbus_channels_d);
 				
 				// Send updates via UDP
