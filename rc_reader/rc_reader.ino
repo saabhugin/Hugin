@@ -31,7 +31,8 @@ uint8_t buffer[buffer_size];
 unsigned int counter = 0; // Counter to check when to turn led on/off
 unsigned int light = 1; 
 unsigned int LED = 13; // PIN number for LED
-unsigned int PWM_OutputEnable = 2; // PIN number for output enable on PWM board PCA9685  
+unsigned int PWM_OutputEnable = 2; // PIN number for output enable on PWM board PCA9685
+unsigned int BBB_StartLogging = 3; // PIN number for activating logging on Beagle Bone Black (BBB)
 
 // Activate pins and set up i2c communication
 void setup(){  
@@ -40,6 +41,9 @@ void setup(){
   // PWM output enable init
   pinMode(PWM_OutputEnable,OUTPUT);
   digitalWrite(PWM_OutputEnable,HIGH);
+
+  pinMode(BBB_StartLogging,OUTPUT);
+  digitalWrite(BBB_StartLogging,LOW);
   
   // Set input pins
   PCICR |= 0b00000001;    // turn on port B for interrupts
@@ -148,14 +152,24 @@ void check_SBus(){
     }
   }
 
-  // check if output enable is sent on SBus channel 11
+  // parse SBus and convert each channel to a double value between 0 and 1
   double sbus_channels_d[13];
   parse_SBus(sBuffer, sbus_channels_d);
+
+   // check if output enable is sent on SBus channel 11
   if(sbus_channels_d[11] > 0.7){
     digitalWrite(PWM_OutputEnable,LOW);
   }
   else{
     digitalWrite(PWM_OutputEnable,HIGH);
+  }
+
+  // check if start logging is sent on SBus channel 6
+    if(sbus_channels_d[5] > 0.7){
+    digitalWrite(BBB_StartLogging,HIGH);
+  }
+  else{
+    digitalWrite(BBB_StartLogging,LOW);
   }
 }
 
