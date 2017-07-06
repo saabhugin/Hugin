@@ -70,6 +70,24 @@ int init_imu(){
 	return 0;
 }
 
+int calibrate_imu(){
+	
+	unsigned int calibration_completed = 0;
+	float angles[13];
+	usleep(CALIBRATION_TIME*1000000); // wait a while for mpu to calibrate gyro  
+	
+	// check if calibration is finished
+	while (!calibration_completed){
+		
+		//get_imu_data(angles);
+		
+		if (1){
+			calibration_completed = 1;
+			return 0;
+		}	
+	}
+}
+
 int i2c_write(unsigned char slave_addr, unsigned char reg_addr,
         unsigned char length, unsigned char const *data){
     unsigned char tmp[length+1];

@@ -70,21 +70,23 @@ int main(){
 
 	float angles[13];
 	
+	
+	
 	// Declare values to hold IMU readings
 	double accel[3];
 	double gyro[3];
 	double euler[3];
 	
 	// Init PWM 
-	//PCA9685 pwm_out(i2c_open(1, 0x40));
-	//usleep(50000);
-	//pwm_out.init(50);						// frequency 50 Hz 
+	PCA9685 pwm_out(i2c_open(1, 0x40));
+	usleep(50000);
+	pwm_out.init(50);						// frequency 50 Hz 
 	double ctrl_signal[4] = {0,0,0,0};	// initial control signal to the servos
-	//pwm_out.signal(ctrl_signal);
+	pwm_out.signal(ctrl_signal);
 	
 	// INITIALIZATION COMPLETED
 	printf("Hugin program started!\n");
-	led.init(OUT,1);
+	led.write(1);
 	
 	while(1){
 		// Listen for packets and process if new packets have arrived 
@@ -93,8 +95,8 @@ int main(){
 			sock.process_packet(data_size, socket_vals, num_socket_vals);
 			
 			// Pace keeper packet received (i.e. flag)
-			if(socket_vals[0].i_vals[0] == 1){
-				socket_vals[0].i_vals[0] = 0;  // reset the flag, i_vals accesses the ready signal
+			if(socket_vals[0].i_vals[0]){
+				socket_vals[0].i_vals[0] = 0;	// reset the flag, i_vals accesses the ready signal
 				
 				// Set PWM outputs
 				// Test to use throttle as output for every motor
@@ -134,15 +136,16 @@ int main(){
 					}	
 				}
 								
-				// Get RC readings (PWM)
+				// Get RC readings
 				rcr.get_readings(channels);
+				
+				// Parse PWM readings
 				for(int i = 0; i < 4; i++){
-
-					// From range 900-2100 to 0.0-1.0 
-					pwm_readings_d[i] = ((double)(channels[i]-900))/1200.0;  // (Val - min_time) / (max_time - min_time)
+					// Scale PWM signal from range SERVOMIN-SERVOMAX to 0-1.
+					pwm_readings_d[i] = ((double)channels[i]-SERVOMIN)/(SERVOMAX-SERVOMIN);	
 				}
 				
-				// Get RC readings (SBUS)
+				// Parse SBus readings
 				rcr.parse_SBus(channels, sbus_channels_d);
 				
 				// Send updates via UDP

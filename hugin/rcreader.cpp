@@ -27,13 +27,12 @@ void rcreader::set_num_channels(int num_channels_){
 }
 
 // ask Arduino for SBUS and PWM signals 
-int rcreader::get_readings(int channels[4]){	
+int rcreader::get_readings(int* channels){	
 	unsigned char tmp[2*num_channels];	
 	for(int i = 0; i < 2*num_channels; i++){
 		tmp[i] = 0;
 	}
 	if(i2c_read(handle, tmp, 2*num_channels)){
-		int vals[num_channels];
 		for(int i = 0; i < num_channels; i++){
 			channels[i] = tmp[2*i] << 8 | tmp[2*i+1];
 		}

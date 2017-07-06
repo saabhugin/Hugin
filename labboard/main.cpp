@@ -66,7 +66,6 @@ int main(){
 	// Initialize FreeIMU
 	init_imu();
 	usleep(20000); // let IMU get at least one sample ready
-	
 	float angles[13];
 	unsigned int count_correct = 0;
 	unsigned int count_error = 0;
@@ -79,9 +78,9 @@ int main(){
 	// Init PWM 
 	PCA9685 pwm_out(i2c_open(1, 0x40));
 	usleep(50000);
-	pwm_out.init(50);						// frequency 50 Hz 
-	pwm_out.set_OE();
-	double ctrl_signal[4] = {0,1,0,0};	// initial control signal to the servos
+	pwm_out.init(50);						// frequency 50 Hz
+
+	double ctrl_signal[4] = {0,0,0,0};	// initial control signal to the servos
 	pwm_out.signal(ctrl_signal);
 	
 	// INITIALIZATION COMPLETED
@@ -95,8 +94,8 @@ int main(){
 			sock.process_packet(data_size, socket_vals, num_socket_vals);
 			
 			// Pace keeper packet received (i.e. flag)
-			if(socket_vals[0].i_vals[0]){				
-				socket_vals[0].i_vals[0] = 0;		// reset the flag, i_vals accesses the ready signal				
+			if(socket_vals[0].i_vals[0]){
+				socket_vals[0].i_vals[0] = 0;	// reset the flag, i_vals accesses the ready signal
 				
 				// Set PWM outputs
 				pwm_out.signal(socket_vals[1].d_vals);
@@ -135,7 +134,7 @@ int main(){
 				rcr.get_readings(channels);
 				
 				// Parse PWM readings
-				for(int i = 0; i < 4; i++) {
+				for(int i = 0; i < 4; i++){
 					// Scale PWM signal from range SERVOMIN-SERVOMAX to 0-1.
 					pwm_readings_d[i] = ((double)channels[i]-SERVOMIN)/(SERVOMAX-SERVOMIN);	
 				}

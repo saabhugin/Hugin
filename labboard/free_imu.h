@@ -23,7 +23,7 @@ extern "C" {
 
 //#define THRESHOLD (0.1*PI/180.0) // the amount that the IMU Euler values have to change less than to indicate that calibration has finished
 
-// #define CALIBRATION_TIME 20.0 // Not used?
+#define CALIBRATION_TIME 20.0 // default time in seconds to wait for calibration to be completed
 
 #include "inv_mpu_dmp_motion_driver.h"
 #include "inv_mpu.h"
@@ -45,6 +45,7 @@ extern "C" {
 int get_imu_data(float* angles);
  
 int init_imu();
+int calibrate_imu();
  
 int i2c_write(unsigned char slave_addr, unsigned char reg_addr,
         unsigned char length, unsigned char const *data);
