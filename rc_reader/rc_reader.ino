@@ -165,7 +165,7 @@ void check_SBus(){
   }
 
   // check if start logging is sent on SBus channel 6
-    if(sbus_channels_d[5] > 0.7){
+    if(sbus_channels_d[6] > 0.7){
     digitalWrite(BBB_StartLogging,HIGH);
   }
   else{
