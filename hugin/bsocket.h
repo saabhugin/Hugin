@@ -20,7 +20,7 @@
 #include <arpa/inet.h>
 #include <stdexcept>
 #include <exception>
-#include <unistd.h>
+//#include <unistd.h> // use with gcc 4.7
 
 #define INTEGER 1
 #define DOUBLE 2

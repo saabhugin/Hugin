@@ -66,7 +66,7 @@ int main(){
 	// Initialize FreeIMU
 	init_imu();
 	usleep(20000); // let IMU get at least one sample ready
-	calibrate_imu();
+	//calibrate_imu();
 
 	float angles[13];
 	
@@ -80,7 +80,7 @@ int main(){
 	// Init PWM 
 	PCA9685 pwm_out(i2c_open(1, 0x40));
 	usleep(50000);
-	pwm_out.init(50);						// frequency 50 Hz 
+	pwm_out.init(50);	// frequency 50 Hz
 	double ctrl_signal[4] = {0,0,0,0};	// initial control signal to the servos
 	pwm_out.signal(ctrl_signal);
 	
@@ -104,6 +104,7 @@ int main(){
 				//	ctrl_signal[i]=socket_vals[1].d_vals[2];
 				//}
 				//pwm_out.signal(ctrl_signal);
+				pwm_out.signal(socket_vals[1].d_vals);
 							
 				// Get IMU readings
 				//imu.get_accelerations(acc_d);
