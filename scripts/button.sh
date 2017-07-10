@@ -73,8 +73,11 @@ do
 	# Start hugin programs for logging
 		/usr/hugin/hugin&
 		/root/main.elf
-		#When main.elf ends, change filename after a short break
-		echo 0 > /sys/class/gpio/gpio30/value # turn of the blue LED
+		# When main.elf ends, kill hugin process and change filename 
+		# after a short break
+		#
+		killall hugin #Kill hugin process for a reboot next log
+		echo 0 > /sys/class/gpio/gpio30/value # turn off the blue LED
 		# The sleep time is used to ensure the logfile is saved correctly
 		sleep 5s
 		#
@@ -101,7 +104,6 @@ do
 			fi
 		done
 		echo "Main.elf ended\nPush the button to start another data log!\n"
-		killall hugin #Kill hugin process for a reboot next log
 		echo 1 > /sys/class/gpio/gpio30/value # Light the Blue LED
 	fi
 	sleep 0.1
