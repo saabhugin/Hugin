@@ -36,4 +36,3 @@ echo 1 > gpio30/value
 # Change directory back to root.
 cd ~/
 # ---------------------------------
-#./button.sh
