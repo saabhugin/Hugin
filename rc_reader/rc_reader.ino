@@ -40,7 +40,7 @@ void setup(){
 
   // PWM output enable init
   pinMode(PWM_OutputEnable,OUTPUT);
-  digitalWrite(PWM_OutputEnable,HIGH);
+  digitalWrite(PWM_OutputEnable,HIGH); // Disable output from PWM-modul
 
   pinMode(BBB_StartLogging,OUTPUT);
   digitalWrite(BBB_StartLogging,LOW);
@@ -156,15 +156,15 @@ void check_SBus(){
   double sbus_channels_d[13];
   parse_SBus(sBuffer, sbus_channels_d);
 
-   // check if output enable is sent on SBus channel 11
+   // check if output enable is sent on SBus channel 12
   if(sbus_channels_d[11] > 0.7){
-    digitalWrite(PWM_OutputEnable,LOW);
+    digitalWrite(PWM_OutputEnable,LOW); // Enable output from PWM-modul
   }
   else{
-    digitalWrite(PWM_OutputEnable,HIGH);
+    digitalWrite(PWM_OutputEnable,HIGH); // Disable output from PWM-modul
   }
 
-  // check if start logging is sent on SBus channel 6
+  // check if start logging is sent on SBus channel 7
     if(sbus_channels_d[6] > 0.7){
     digitalWrite(BBB_StartLogging,HIGH);
   }
