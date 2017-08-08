@@ -18,7 +18,7 @@ void GPIO::init(bool direction, bool value) {
 	PINVAL = PINPATH;
 	PINVAL.append("/value");
 	set_pin();
-	set_direction(direction_);	
+	set_direction(direction);	
 	write(value);
 }	
 	
