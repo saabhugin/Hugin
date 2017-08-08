@@ -20,6 +20,7 @@
 //#include "MPU6050.h" // incompatible with free_imu
 //#include "HMC5883L.h" // incompatible with free_imu
 #include "free_imu.h"
+#include "timer.h"
 
 int main(){	
 	// Create socket and set listen time out
@@ -83,6 +84,9 @@ int main(){
 	double ctrl_signal[4] = {0,0,0,0};	// initial control signal to the servos
 	pwm_out.signal(ctrl_signal);
 	
+	timer time_logger;
+	double time_log = 0;
+	
 	// INITIALIZATION COMPLETED
 	printf("Hugin program started!\n");
 	led.write(1);
@@ -91,11 +95,15 @@ int main(){
 		// Listen for packets and process if new packets have arrived 
 		data_size = sock.listen();		// returns the number of bytes received
 		if(data_size > 0){
+			
 			sock.process_packet(data_size, socket_vals, num_socket_vals);
 			
 			// Pace keeper packet received (i.e. flag)
-			if(socket_vals[0].i_vals[0]){
+			if(socket_vals[0].i_vals[0]){				
 				socket_vals[0].i_vals[0] = 0;	// reset the flag, i_vals accesses the ready signal
+				
+				// Start timer
+				//time_logger.start();
 				
 				// Set PWM outputs
 				pwm_out.signal(socket_vals[1].d_vals);
@@ -143,19 +151,25 @@ int main(){
 				rcr.parse_SBus(channels, sbus_channels_d);
 				
 				// Send updates via UDP
-				sock.send(LOCAL_HOST, 22001, accel, 3);
-				sock.send(LOCAL_HOST, 22002, gyro, 3);
-				sock.send(LOCAL_HOST, 22003, euler, 3);
+				//sock.send(LOCAL_HOST, 22001, accel, 3);
+				//sock.send(LOCAL_HOST, 22002, gyro, 3);
+				//sock.send(LOCAL_HOST, 22003, euler, 3);
 				sock.send(LOCAL_HOST, 22101, sbus_channels_d, num_sbus_channels);
 				sock.send(LOCAL_HOST, 22102, pwm_readings_d, num_pwm_channels);
 								
 				// Blink LED every 10th sent package
-				led_counter++;
-				if(led_counter > 10){
-					light = !light;
-					led.write(light);
-					led_counter = 0;
-				}
+				//led_counter++;
+				//if(led_counter > 10){
+				//	light = !light;
+				//	led.write(light);
+				//	led_counter = 0;
+				//}
+				
+				// Stop timer, calculate duration and print
+				//time_logger.stop();
+				//time_log = time_logger.micros();
+				//printf("us: %4.0f \n", time_log);	
+				//printf("ms: %4.0f \nus: %4.0f \n", time_logger.millis(), time_logger.micros());	
 			}
 		}
 	}

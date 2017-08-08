@@ -11,7 +11,7 @@ EXECUTABLE = hugin
 # C++
 CC = g++-4.7
 CCFLAGS = -g -std=c++11
-CCSOURCES =  main.cpp bsocket.cpp GPIO.cpp i2cfunc.cpp PCA9685.cpp rcreader.cpp
+CCSOURCES =  main.cpp bsocket.cpp GPIO.cpp i2cfunc.cpp PCA9685.cpp rcreader.cpp timer.cpp
 CCOBJECTS = $(CCSOURCES:.cpp=.o)
 
 # C
