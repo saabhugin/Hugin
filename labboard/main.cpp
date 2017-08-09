@@ -151,9 +151,9 @@ int main(){
 				rcr.parse_SBus(channels, sbus_channels_d);
 				
 				// Send updates via UDP
-				//sock.send(LOCAL_HOST, 22001, accel, 3);
-				//sock.send(LOCAL_HOST, 22002, gyro, 3);
-				//sock.send(LOCAL_HOST, 22003, euler, 3);
+				sock.send(LOCAL_HOST, 22001, accel, 3);
+				sock.send(LOCAL_HOST, 22002, gyro, 3);
+				sock.send(LOCAL_HOST, 22003, euler, 3);
 				sock.send(LOCAL_HOST, 22101, sbus_channels_d, num_sbus_channels);
 				sock.send(LOCAL_HOST, 22102, pwm_readings_d, num_pwm_channels);
 								
