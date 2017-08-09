@@ -103,7 +103,7 @@ int main(){
 				socket_vals[0].i_vals[0] = 0;	// reset the flag, i_vals accesses the ready signal
 				
 				// Start timer
-				//time_logger.start();
+				time_logger.start();
 				
 				// Set PWM outputs
 				pwm_out.signal(socket_vals[1].d_vals);
@@ -158,17 +158,17 @@ int main(){
 				sock.send(LOCAL_HOST, 22102, pwm_readings_d, num_pwm_channels);
 								
 				// Blink LED every 10th sent package
-				//led_counter++;
-				//if(led_counter > 10){
-				//	light = !light;
-				//	led.write(light);
-				//	led_counter = 0;
-				//}
+				led_counter++;
+				if(led_counter > 10){
+					light = !light;
+					led.write(light);
+					led_counter = 0;
+				}
 				
 				// Stop timer, calculate duration and print
-				//time_logger.stop();
-				//time_log = time_logger.micros();
-				//printf("us: %4.0f \n", time_log);	
+				time_logger.stop();
+				time_log = time_logger.micros();
+				printf("us: %4.0f \n", time_log);	
 				//printf("ms: %4.0f \nus: %4.0f \n", time_logger.millis(), time_logger.micros());	
 			}
 		}

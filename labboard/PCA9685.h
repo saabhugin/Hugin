@@ -19,12 +19,12 @@
 #define PCA9685_LED0_ON 0x6		// PWM signal output port 0 pin 0 (i.e. first servo/motor), the rest are accessed in a for loop i=0:3, see pwm_write()
 
 // Hard limits for test bench servos
-//#define SERVOMIN   125
-//#define SERVOMAX   470
+#define SERVOMIN   600
+#define SERVOMAX   2400
 
 // Hard limits for Hugin speed controllers
-#define SERVOMIN 1000
-#define SERVOMAX 2000
+//#define SERVOMIN 1000
+//#define SERVOMAX 2000
 
 class PCA9685{
 
