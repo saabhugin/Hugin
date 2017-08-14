@@ -72,6 +72,8 @@ do
 	then
 	# Start hugin programs for logging
 		/usr/hugin/hugin&
+		sleep  20s
+		# let hugin program start properly. IMU calibration takes about 15s.
 		/root/main.elf
 		# When main.elf ends, kill hugin process and change filename 
 		# after a short break
