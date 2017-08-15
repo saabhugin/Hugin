@@ -12,7 +12,7 @@ extern "C" {
 #define MPU6050_ADDR 0x68
 #define MPU6050_WHO_AM_I 0x75
 
-#define DEFAULT_MPU_HZ 200 // Rate that DMP samples and puts sensor data in FIFO register
+#define DEFAULT_MPU_HZ 50 // Rate that DMP samples and puts sensor data in FIFO register
 
 #define PI 3.14159
 #define QUAT_SCALE (1.0/1073741824)

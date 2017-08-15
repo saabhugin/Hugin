@@ -99,11 +99,12 @@ int main(){
 			sock.process_packet(data_size, socket_vals, num_socket_vals);
 			
 			// Pace keeper packet received (i.e. flag)
-			if(socket_vals[0].i_vals[0]){				
-				socket_vals[0].i_vals[0] = 0;	// reset the flag, i_vals accesses the ready signal
-				
+			if(socket_vals[0].i_vals[0]){		
+
 				// Start timer
 				time_logger.start();
+			
+				socket_vals[0].i_vals[0] = 0;	// reset the flag, i_vals accesses the ready signal
 				
 				// Set PWM outputs
 				pwm_out.signal(socket_vals[1].d_vals);

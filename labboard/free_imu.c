@@ -22,7 +22,6 @@ int get_imu_data(float* angles){
     unsigned char more[0];
 	
 	int fifo_read = dmp_read_fifo(gyro, accel, quat, &timestamp, sensors, more);
-	mpu_reset_fifo(); // reset fifo pointer to avoid overflow (enables high sample rate in the dmp)
     if (fifo_read != 0){
 			return -1;
         }
@@ -168,11 +167,11 @@ inline void __no_operation(){
 
 }
 
-// turn quaternions into euler anlges
-void euler(float* q, float* euler_angles) {
-    euler_angles[2] = atan2(2*(q[0]*q[1] + q[2]*q[3]), 1 - 2*(q[1]*q[1] + q[2]*q[2])); // phi, roll
-    euler_angles[1] = -asin(2*(q[0]*q[2] + q[1]*q[3])); // theta, pitch
-    euler_angles[0] = atan2(2*(q[0]*q[3] - q[1]*q[2]), 1 - 2*(q[2]*q[2] + q[3]*q[3])); // psi, yaw
+// turn quaternions into yaw/pitch/roll
+void euler(float* q, float* euler_angles) {	
+	euler_angles[2]  = atan2(2.0 * (q[3] * q[2] + q[0] * q[1]) , 1.0 - 2.0 * (q[1] * q[1] + q[2] * q[2])); //roll
+	euler_angles[1] = asin(2.0 * (q[2] * q[0] - q[3] * q[1])); // pitch
+	euler_angles[0]   = atan2(2.0 * (q[3] * q[0] + q[1] * q[2]) , - 1.0 + 2.0 * (q[0] * q[0] + q[1] * q[1])); //yaw
 }
 
 // Functions for setting gyro/accel orientation
