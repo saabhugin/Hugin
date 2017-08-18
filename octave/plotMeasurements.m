@@ -1,8 +1,8 @@
-%%
 clear; clc; close all;
-addpath logfiles
-load 1062.mat
-version = "new";
+
+addpath ../../../MATLAB/Flygprov_170816
+
+load 4007.mat
 
 %% Extract the data from yout_rt
 time = yout_rt.time;
@@ -14,73 +14,65 @@ euler = squeeze(yout_rt.signals(3).values);
 figure('Name','Accelerometer')
 ax1=subplot(3,1,1);
 stairs(time, acc(1,:))
+ylabel('acceleration [g]')
+xlabel('time [s]')
 legend('x')
 ax2=subplot(3,1,2);
 stairs(time, acc(2,:))
+ylabel('acceleration [g]')
+xlabel('time [s]')
 legend('y')
 ax3=subplot(3,1,3);
 stairs(time, acc(3,:))
+ylabel('acceleration [g]')
+xlabel('time [s]')
 legend('z')
 linkaxes([ax1 ax2 ax3],'xy')
 axis([min(time) max(time) 1.1*min(min(acc(:,:))) 1.1*max(max(acc(:,:)))])
 
+saveas(gcf, 'accel' ,'png')
 
-if (version == "org")
-%% Gyro plot original hugin
-figure('Name','Gyro')
-ax1=subplot(3,1,1);
-stairs(time, gyr(1,:))
-legend('p')
-ax2=subplot(3,1,2);
-stairs(time, gyr(2,:))
-legend('q')
-ax3=subplot(3,1,3);
-stairs(time, gyr(3,:))
-legend('r')
-linkaxes([ax1 ax2 ax3],'xy')
-%axis([min(time) max(time) 1.1*180/pi()*min(min(gyr(:,:))) 1.1*180/pi()*max(max(gyr(:,:)))])
-
-%% Magnotometer plot
-figure('Name','Magnetometer')
-ax1=subplot(3,1,1);
-stairs(time, euler(1,:))
-legend('x')
-ax2=subplot(3,1,2);
-stairs(time, euler(2,:))
-legend('y')
-ax3=subplot(3,1,3);
-stairs(time, euler(3,:))
-legend('z')
-end
-
-if (version == "new")
 %% Gyro plot new hugin
 figure('Name','Gyro')
 ax1=subplot(3,1,1);
 stairs(time, 180/pi()*gyr(1,:))
+ylabel('rate [degrees/s]')
+xlabel('time [s]')
 legend('p')
 ax2=subplot(3,1,2);
 stairs(time, 180/pi()*gyr(2,:))
+ylabel('rate [degree/s]')
+xlabel('time [s]')
 legend('q')
 ax3=subplot(3,1,3);
 stairs(time, 180/pi()*gyr(3,:))
+ylabel('rate [degrees/s]')
+xlabel('time [s]')
 legend('r')
 linkaxes([ax1 ax2 ax3],'xy')
 axis([min(time) max(time) 1.1*180/pi()*min(min(gyr(:,:))) 1.1*180/pi()*max(max(gyr(:,:)))])
+
+saveas(gcf, 'gyro' ,'png')
 
 %% Euler angles plot
 figure('Name','Euler angles')
 ax1=subplot(3,1,1);
 stairs(time, 180/pi()*euler(1,:))
+ylabel('angle [degrees]')
+xlabel('time [s]')
 legend('yaw')
 ax2=subplot(3,1,2);
 stairs(time, 180/pi()*euler(2,:))
+ylabel('angle [degrees]')
+xlabel('time [s]')
 legend('pitch')
 ax3=subplot(3,1,3);
 stairs(time, 180/pi()*euler(3,:))
+ylabel('angle [degrees]')
+xlabel('time [s]')
 legend('roll')
 
-end
+saveas(gcf, 'euler' ,'png')
 
 %% Extract the data from yout_rt
 rc= squeeze(yout_rt.signals(7).values);
@@ -138,3 +130,81 @@ linkaxes([ax1 ax2 ax3 ax4],'x')
 %%figure
 %%plot(ACC)
 
+%% Extra plots
+samples = 1:3500;
+
+% roll - p
+figure('Name', 'SBUS Signals')
+ax1=subplot(2,1,1);
+plot(time(samples),rc(1:1,samples))
+title('SBUS -  RC command')
+legend('roll');
+
+ax2=subplot(2,1,2);
+stairs(time(samples), 180/pi()*gyr(1,samples))
+ylabel('rate [degrees/s]')
+xlabel('time [s]')
+title('IMU')
+legend('p')
+
+linkaxes([ax1 ax2],'x')
+axis([min(time(samples)) max(time(samples)) 1.1*180/pi()*min(min(gyr(1,samples))) 1.1*180/pi()*max(max(gyr(1,samples)))])
+
+saveas(gcf, 'roll_p' ,'png')
+
+% pitch - q 
+figure('Name', 'SBUS Signals')
+ax1=subplot(2,1,1);
+plot(time(samples),rc(2:2,samples))
+title('SBUS -  RC command')
+legend('pitch')
+
+ax2=subplot(2,1,2);
+stairs(time(samples), 180/pi()*gyr(2,samples))
+ylabel('rate [degrees/s]')
+xlabel('time [s]')
+title('IMU')
+legend('q')
+
+linkaxes([ax1 ax2],'x')
+axis([min(time(samples)) max(time(samples)) 1.1*180/pi()*min(min(gyr(2,samples))) 1.1*180/pi()*max(max(gyr(2,samples)))])
+
+saveas(gcf, 'pitch_q' ,'png')
+
+% yaw - r 
+figure('Name', 'SBUS Signals')
+ax1=subplot(2,1,1);
+plot(time(samples),-rc(4:4,samples))
+title('SBUS -  RC command')
+legend('yaw')
+
+ax2=subplot(2,1,2);
+stairs(time(samples), 180/pi()*gyr(3,samples))
+ylabel('rate [degrees/s]')
+xlabel('time [s]')
+title('IMU')
+legend('r')
+
+linkaxes([ax1 ax2],'x')
+axis([min(time(samples)) max(time(samples)) 1.1*180/pi()*min(min(gyr(3,samples))) 1.1*180/pi()*max(max(gyr(3,samples)))])
+
+saveas(gcf, 'yaw_r' ,'png')
+
+% thrust - accelerometer z-axis 
+figure('Name', 'SBUS Signals')
+ax1=subplot(2,1,1);
+plot(time(samples),rc(3:3,samples))
+title('SBUS -  RC command')
+legend('thrust')
+
+ax2=subplot(2,1,2);
+stairs(time(samples), acc(3,samples))
+ylabel('acceleration [g]')
+xlabel('time [s]')
+title('IMU')
+legend('acceleration z-axis')
+
+linkaxes([ax1 ax2],'x')
+axis([min(time(samples)) max(time(samples)) 1.5*min(min(acc(3,samples))) 1.5*max(max(acc(3,samples)))])
+
+saveas(gcf, 'thrust_accelzaxis' ,'png')

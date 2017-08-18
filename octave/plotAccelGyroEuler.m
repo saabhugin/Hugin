@@ -1,7 +1,8 @@
 clear; clc; close all;
-addpath logfiles
-load main.mat
-version = "new";
+
+addpath ../../../MATLAB/Flygprov_170816
+
+load 4007.mat
 
 %% Extract the data from yout_rt
 time = yout_rt.time;
@@ -23,36 +24,6 @@ legend('z')
 linkaxes([ax1 ax2 ax3],'xy')
 axis([min(time) max(time) 1.1*min(min(acc(:,:))) 1.1*max(max(acc(:,:)))])
 
-
-if (version == "org")
-%% Gyro plot original hugin
-figure('Name','Gyro')
-ax1=subplot(3,1,1);
-stairs(time, gyr(1,:))
-legend('p')
-ax2=subplot(3,1,2);
-stairs(time, gyr(2,:))
-legend('q')
-ax3=subplot(3,1,3);
-stairs(time, gyr(3,:))
-legend('r')
-linkaxes([ax1 ax2 ax3],'xy')
-%axis([min(time) max(time) 1.1*180/pi()*min(min(gyr(:,:))) 1.1*180/pi()*max(max(gyr(:,:)))])
-
-%% Magnotometer plot
-figure('Name','Magnetometer')
-ax1=subplot(3,1,1);
-stairs(time, euler(1,:))
-legend('x')
-ax2=subplot(3,1,2);
-stairs(time, euler(2,:))
-legend('y')
-ax3=subplot(3,1,3);
-stairs(time, euler(3,:))
-legend('z')
-end
-
-if (version == "new")
 %% Gyro plot new hugin
 figure('Name','Gyro')
 ax1=subplot(3,1,1);
@@ -79,4 +50,29 @@ ax3=subplot(3,1,3);
 stairs(time, 180/pi()*euler(3,:))
 legend('roll')
 
-end
+%% Frequency analysis
+figure('Name','Accelerometer fft')
+freq = linspace(-1,1,length(acc(1,:)));
+ax1=subplot(3,1,1);
+plot(freq,fftshift(abs(fft(acc(1,:)))))
+legend('x')
+ax2=subplot(3,1,2);
+plot(freq,fftshift(abs(fft(acc(2,:)))))
+legend('y')
+ax3=subplot(3,1,3);
+plot(freq,fftshift(abs(fft(acc(3,:)))))
+legend('z')
+linkaxes([ax1 ax2 ax3],'xy')
+
+%% Gyro plot new hugin
+figure('Name','Gyro fft')
+ax1=subplot(3,1,1);
+plot(freq,fftshift(abs(fft(gyr(1,:)))))
+legend('p')
+ax2=subplot(3,1,2);
+plot(freq,fftshift(abs(fft(gyr(2,:)))))
+legend('q')
+ax3=subplot(3,1,3);
+plot(freq,fftshift(abs(fft(gyr(3,:)))))
+legend('r')
+linkaxes([ax1 ax2 ax3],'xy')
