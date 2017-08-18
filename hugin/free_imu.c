@@ -48,7 +48,7 @@ int init_imu(){
     i2c_read(MPU6050_ADDR, MPU6050_WHO_AM_I, 1, &whoami);
 	
 	struct int_param_s int_param;
-	unsigned short dmp_features = DMP_FEATURE_6X_LP_QUAT | DMP_FEATURE_SEND_RAW_ACCEL | DMP_FEATURE_SEND_CAL_GYRO | DMP_FEATURE_GYRO_CAL;
+	unsigned short dmp_features = DMP_FEATURE_6X_LP_QUAT | DMP_FEATURE_TAP | DMP_FEATURE_SEND_RAW_ACCEL | DMP_FEATURE_SEND_CAL_GYRO | DMP_FEATURE_GYRO_CAL;
 	
 	if(	mpu_init(&int_param) || 
 		mpu_set_sensors(INV_XYZ_GYRO | INV_XYZ_ACCEL) ||
