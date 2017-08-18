@@ -57,9 +57,6 @@ int init_imu(){
 		dmp_set_orientation(inv_orientation_matrix_to_scalar(gyro_orientation)) ||
 		dmp_enable_feature(dmp_features) || 
 		dmp_set_fifo_rate(DEFAULT_MPU_HZ) ||
-		mpu_set_lpf(20) || 			// set low pass filter frequency Hz
-		mpu_set_gyro_fsr(1000) || 	// set gyro scale range deg/sec
-		mpu_set_accel_fsr(2) || 	// set acceleromter scale range g
 		mpu_set_dmp_state(1)
 		){
 		
@@ -68,24 +65,6 @@ int init_imu(){
 		}
 	
 	return 0;
-}
-
-int calibrate_imu(){
-	
-	unsigned int calibration_completed = 0;
-	float angles[13];
-	usleep(CALIBRATION_TIME*1000000); // wait a while for mpu to calibrate gyro  
-	
-	// check if calibration is finished
-	while (!calibration_completed){
-		
-		//get_imu_data(angles);
-		
-		if (1){
-			calibration_completed = 1;
-			return 0;
-		}	
-	}
 }
 
 int i2c_write(unsigned char slave_addr, unsigned char reg_addr,

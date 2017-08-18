@@ -17,8 +17,6 @@
 #include "rcreader.h"
 #include "PCA9685.h"
 #include "GPIO.h"
-//#include "MPU6050.h" // incompatible with free_imu
-//#include "HMC5883L.h" // incompatible with free_imu
 #include "free_imu.h"
 
 int main(){	
@@ -45,18 +43,6 @@ int main(){
 	double sbus_channels_d[num_sbus_channels];
 	usleep(50000);
 	
-	// Initialise IMU
-	//MPU6050 imu(i2c_open(1, 0x68));
-	//imu.init();
-	
-	//imu.set_range_acceleration(AFS_SEL_8G); // Change accelerometer range. 2G was not enough, 8G works!
-	//usleep(50000); 							// Makes sure the IMU with gyro is up and running (min 30 ms)
-	
-	// Initialize magnetometer (part of FreeIMU)
-	//HMC5883L mag(i2c_open(1,MAG_ADDR));
-	//mag.init();
-	//usleep(50000);
-	
 	// GPIO setup
 	int light = 1;
 	int led_counter = 0;
@@ -66,11 +52,7 @@ int main(){
 	// Initialize FreeIMU
 	init_imu();
 	usleep(20000); // let IMU get at least one sample ready
-	//calibrate_imu();
-
 	float angles[13];
-	
-	
 	
 	// Declare values to hold IMU readings
 	double accel[3];
@@ -99,17 +81,7 @@ int main(){
 				socket_vals[0].i_vals[0] = 0;	// reset the flag, i_vals accesses the ready signal
 				
 				// Set PWM outputs
-				// Test to use throttle as output for every motor
-				//for(int i= 0; i<4; i++){
-				//	ctrl_signal[i]=socket_vals[1].d_vals[2];
-				//}
-				//pwm_out.signal(ctrl_signal);
 				pwm_out.signal(socket_vals[1].d_vals);
-							
-				// Get IMU readings
-				//imu.get_accelerations(acc_d);
-				//imu.get_angular_velocities(gyro_d);	
-				//mag.get_magnetometer_data(mag_d);
 				
 				// Get IMU data from FreeIMU
 				if(!get_imu_data(angles)){
@@ -118,22 +90,6 @@ int main(){
 						euler[i]=(double)angles[i];
 						gyro[i]=(double)angles[i+3];
 						accel[i]=(double)angles[i+6];						
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 					}	
 				}
 								

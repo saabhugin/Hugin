@@ -1,8 +1,6 @@
 ##########################################################
 # Makefile for compiling C++ code with additional C code.
 #
-# Oscar Törnroth, 2017-06-20
-#
 ##########################################################
 
 # TARGET FILE

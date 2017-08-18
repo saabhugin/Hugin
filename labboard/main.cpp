@@ -68,8 +68,6 @@ int main(){
 	init_imu();
 	usleep(20000); // let IMU get at least one sample ready
 	float angles[13];
-	unsigned int count_correct = 0;
-	unsigned int count_error = 0;
 	
 	// Declare values to hold IMU readings
 	double accel[3];
@@ -124,19 +122,11 @@ int main(){
 					}
 					
 					//printf("Attitude: Yaw: %+5.1f\tPitch: %+5.1f\tRoll: %+5.1f\n\n", angles[0]*180.0/PI, angles[1]*180.0/PI, angles[2]*180.0/PI);
-					//printf("Attitude: Yaw: %+5.1f\tPitch: %+5.1f\tRoll: %+5.1f\n\n", euler[0]*180.0/PI, euler[1]*180.0/PI, euler[2]*180.0/PI);
 					//printf("Rate: p: %+5.5f\tq: %+5.5f\tr: %+5.5f\n\n", angles[3]*180.0/PI, angles[4]*180.0/PI, angles[5]*180.0/PI);
-					//printf("Rate: p: %+5.5f\tq: %+5.5f\tr: %+5.5f\n\n", gyro[0]*180.0/PI, gyro[1]*180.0/PI, gyro[2]*180.0/PI);
-					//printf("Acceleration: X: %+5.1f\tY: %+5.1f\tZ: %+5.1f\n\n", angles[6], angles[7], angles[8]);	
-					//printf("Acceleration: X: %+5.1f\tY: %+5.1f\tZ: %+5.1f\n\n", accel[0], accel[1], accel[2]);				
-					count_correct += 1;				
+					//printf("Acceleration: X: %+5.1f\tY: %+5.1f\tZ: %+5.1f\n\n", angles[6], angles[7], angles[8]);							
 				}
 				else{
 					printf("Error reading fifo! \n");
-					count_error += 1;
-			
-					printf("Number of correct fifo values: %d \n", count_correct);
-					printf("Number of corrupt fifo values: %d \n", count_error);
 				}
 								
 				// Get RC readings
@@ -169,8 +159,7 @@ int main(){
 				// Stop timer, calculate duration and print
 				time_logger.stop();
 				time_log = time_logger.micros();
-				printf("us: %4.0f \n", time_log);	
-				//printf("ms: %4.0f \nus: %4.0f \n", time_logger.millis(), time_logger.micros());	
+				//printf("us: %4.0f \n", time_log);
 			}
 		}
 	}

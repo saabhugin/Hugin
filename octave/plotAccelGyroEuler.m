@@ -1,8 +1,6 @@
 clear; clc; close all;
 
-addpath ../../../MATLAB/Flygprov_170816
-
-load 4007.mat
+load 0001.mat
 
 %% Extract the data from yout_rt
 time = yout_rt.time;
