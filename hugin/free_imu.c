@@ -49,15 +49,20 @@ int init_imu(){
 	
 	struct int_param_s int_param;
 	unsigned short dmp_features = DMP_FEATURE_6X_LP_QUAT | DMP_FEATURE_TAP | DMP_FEATURE_SEND_RAW_ACCEL | DMP_FEATURE_SEND_CAL_GYRO | DMP_FEATURE_GYRO_CAL;
+	// DMP_FEATURE_6X_LP_QUAT - Send 6DOF quaternions
+	// DMP_FEATURE_TAP - Needed because of a bug, but not used. 
+	// DMP_FEATURE_SEND_RAW_ACCEL - Send LP-filtered accelerometer data
+	// DMP_FEATURE_SEND_CAL_GYRO - Send LP-filtered gyroscope data
+	// DMP_FEATURE_GYRO_CAL - Activate automatic bias correction of gyroscope data
 	
 	if(	mpu_init(&int_param) || 
-		mpu_set_sensors(INV_XYZ_GYRO | INV_XYZ_ACCEL) ||
-		mpu_configure_fifo(INV_XYZ_GYRO | INV_XYZ_ACCEL) ||
+		mpu_set_sensors(INV_XYZ_GYRO | INV_XYZ_ACCEL) || // Turn on sensors
+		mpu_configure_fifo(INV_XYZ_GYRO | INV_XYZ_ACCEL) || // Put sensor data in FIFO
 		dmp_load_motion_driver_firmware() ||
 		dmp_set_orientation(inv_orientation_matrix_to_scalar(gyro_orientation)) ||
-		dmp_enable_feature(dmp_features) || 
-		dmp_set_fifo_rate(DEFAULT_MPU_HZ) ||
-		mpu_set_dmp_state(1)
+		dmp_enable_feature(dmp_features) ||
+		dmp_set_fifo_rate(DEFAULT_MPU_HZ) || 
+		mpu_set_dmp_state(1) // Activate DMP
 		){
 		
 		printf("Error initialzing IMU!");
